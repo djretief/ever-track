@@ -3,6 +3,9 @@
  * Handles time calculations and formatting
  */
 
+// Prevent multiple declarations
+if (!window.EverTrackTime) {
+
 const EverTrackTime = {
     /**
      * Maximum hours scale for progress bar (±20 hours = full scale)
@@ -39,11 +42,14 @@ const EverTrackTime = {
      * Calculate progress percentage based on worked hours vs target
      * @param {number} workedHours - Hours worked
      * @param {number} targetHours - Target hours
+     * @param {string} trackingMode - 'daily', 'weekly', or 'monthly'
+     * @param {Object} workSchedule - Work schedule configuration
      * @returns {Object} - Progress calculation result
      */
-    calculateProgress(workedHours, targetHours) {
-        const difference = workedHours - targetHours;
-        const progressPercentage = targetHours > 0 ? (workedHours / targetHours) * 100 : 0;
+    calculateProgress(workedHours, targetHours, trackingMode, workSchedule) {
+        const expectedHours = this.calculateExpectedHours(trackingMode, workSchedule);
+        const difference = workedHours - expectedHours;
+        const progressPercentage = expectedHours > 0 ? (workedHours / expectedHours) * 100 : 0;
         
         // Calculate fill width based on hours difference (±20h = full scale)
         const fillWidth = Math.min(Math.abs(difference) / this.MAX_HOURS_SCALE * 50, 50);
@@ -195,4 +201,6 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 if (typeof window !== 'undefined') {
     window.EverTrackTime = EverTrackTime;
+}
+
 }

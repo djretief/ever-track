@@ -1,5 +1,6 @@
 // EverTrack Content Script - Injects progress bar into Everhour
 console.log('EverTrack: Content script loaded');
+console.log('EverTrack: Utils available:', typeof EverTrackUtils !== 'undefined');
 
 class EverTrackInjector {
     constructor() {
@@ -25,8 +26,21 @@ class EverTrackInjector {
 
     async start() {
         try {
-            // Load settings
-            this.settings = await this.loadSettings();
+            console.log('EverTrack: Starting injector...');
+            
+            // Check if utils are available
+            if (typeof EverTrackUtils === 'undefined') {
+                console.error('EverTrack: Utils not loaded!');
+                return;
+            }
+            
+            // Load settings using shared utility
+            this.settings = await EverTrackUtils.loadSettings();
+            console.log('EverTrack: Settings loaded:', {
+                hasApiToken: !!this.settings.apiToken,
+                targetHours: this.settings.targetHours,
+                hasWorkSchedule: !!this.settings.workSchedule
+            });
             
             if (!this.settings.apiToken) {
                 console.log('EverTrack: No API token configured');
@@ -106,9 +120,10 @@ class EverTrackInjector {
         try {
             console.log('EverTrack: Updating progress bar');
             
-            const timeData = await this.fetchTimeData();
+            // Use shared utility to fetch time data with tracking mode
+            const timeData = await EverTrackUtils.fetchTimeData(this.settings.apiToken, this.settings.trackingMode);
             if (!timeData) {
-                this.showError('Failed to load time data');
+                this.showError('No time data available');
                 return;
             }
 
@@ -116,7 +131,7 @@ class EverTrackInjector {
             
         } catch (error) {
             console.error('EverTrack: Error updating progress bar:', error);
-            this.showError('Error loading data');
+            this.showError(`Error: ${error.message}`);
         }
     }
 
@@ -131,133 +146,67 @@ class EverTrackInjector {
             return;
         }
 
-        const { worked, proRatedTarget, difference } = this.calculateProgress(timeData);
+        // Use shared utility to calculate progress (matches popup exactly)
+        const { worked, proRatedTarget, difference, fullTarget, progress, totalWorkHours, elapsedWorkHours } = 
+            EverTrackUtils.calculateProgress(timeData, this.settings);
         
-        // Calculate percentage and color
-        let color, status, percentage;
+        console.log('EverTrack Content: Progress calculation result:', {
+            worked, proRatedTarget, difference, fullTarget, progress
+        });
         
-        if (difference > 0) {
-            // Ahead of target
-            color = '#34C759'; // Green
-            percentage = Math.min(100, (worked / proRatedTarget) * 100);
-            status = `${difference.toFixed(1)}h ahead! 🚀`;
-            statusEl.className = 'evertrack-status ahead';
-        } else if (difference >= 0) {
-            // Exactly on target
-            color = '#34C759'; // Green
-            percentage = 100;
-            status = 'On track! 🎯';
-            statusEl.className = 'evertrack-status on-track';
-        } else {
-            // Behind target
-            const underPercentage = Math.abs(difference / proRatedTarget) * 100;
-            percentage = Math.max(0, (worked / proRatedTarget) * 100);
+        // Calculate color, status, and fill width (matches popup logic exactly)
+        let color, status, fillWidth;
+        
+        // Clear previous classes
+        fillEl.classList.remove('under-target', 'over-target');
+        
+        if (difference <= 0) {
+            // Under or at expected target
+            fillEl.classList.add('under-target');
+            const targetPercentage = proRatedTarget > 0 ? (worked / proRatedTarget) * 100 : 0;
+            fillWidth = Math.min(50, (targetPercentage / 100) * 50); // Max 50% (left half)
             
-            if (underPercentage <= 15) {
-                color = '#FF9500'; // Orange
-                status = `${Math.abs(difference).toFixed(1)}h behind`;
-                statusEl.className = 'evertrack-status behind';
+            const underPercentage = Math.abs(difference / proRatedTarget) * 100;
+            
+            if (difference >= 0) {
+                // Exactly on target
+                color = '#34C759'; // Green - on track
+                status = 'On track! 🎯';
+            } else if (underPercentage <= 15) {
+                // Under target by up to 15% - ORANGE
+                color = '#FF9500'; // Orange - slightly behind
+                status = `${Math.abs(difference).toFixed(1)}h behind expected progress`;
             } else {
-                color = '#FF3B30'; // Red
-                status = `${Math.abs(difference).toFixed(1)}h behind`;
-                statusEl.className = 'evertrack-status significantly-behind';
+                // Under target by more than 15% - RED
+                color = '#FF3B30'; // Red - significantly behind
+                status = `${Math.abs(difference).toFixed(1)}h behind expected progress`;
             }
+        } else {
+            // Ahead of expected target
+            fillEl.classList.add('over-target');
+            const overPercentage = ((difference / proRatedTarget) * 100);
+            fillWidth = Math.min(50, (overPercentage / 100) * 50); // Max 50% (right half)
+            
+            color = '#34C759'; // Green - ahead of target
+            status = `${difference.toFixed(1)}h ahead of expected progress! 🚀`;
         }
 
         // Update the display
         statusEl.textContent = status;
-        statusEl.style.color = '';  // Reset inline color, use class-based styling
+        statusEl.className = 'evertrack-status';
         
-        fillEl.style.width = `${Math.max(0, percentage)}%`;
+        fillEl.style.width = `${fillWidth}%`;
         fillEl.style.backgroundColor = color;
-        fillEl.style.opacity = percentage > 0 ? '1' : '0';
+        fillEl.style.opacity = '1';
         
-        textEl.textContent = `${worked.toFixed(1)}h / ${proRatedTarget.toFixed(1)}h`;
+        // Display format matches popup: "worked hours / total target (progress%)"
+        const progressPercent = Math.round((progress || 0) * 100);
+        textEl.textContent = `${worked.toFixed(1)}h / ${fullTarget}h (${progressPercent}% through work period)`;
         
-        // Update details
-        const targetHours = this.getTodayTargetHours();
+        // Update details to show pro-rated expected hours (like popup)
         detailsEl.innerHTML = `
-            <small>Target: ${targetHours}h | Progress: ${Math.round(percentage)}%</small>
+            <small>${proRatedTarget.toFixed(1)}h expected | ${elapsedWorkHours.toFixed(1)}h / ${totalWorkHours.toFixed(1)}h work time</small>
         `;
-    }
-
-    calculateProgress(timeData) {
-        // Get today's target hours
-        const targetHours = this.getTodayTargetHours();
-        
-        // Calculate pro-rated target based on work schedule
-        const proRatedTarget = this.calculateProRatedTarget(targetHours);
-        
-        // Get worked hours from API data
-        const worked = timeData.reduce((total, entry) => total + (entry.time || 0), 0) / 3600;
-        
-        // Calculate difference
-        const difference = worked - proRatedTarget;
-        
-        return { worked, proRatedTarget, difference };
-    }
-
-    getTodayTargetHours() {
-        const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-        const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-        const dayName = dayNames[today];
-        
-        return this.settings.workSchedule?.[dayName] || this.settings.targetHours || 8;
-    }
-
-    calculateProRatedTarget(targetHours) {
-        const now = new Date();
-        const workSchedule = this.settings.workSchedule;
-        
-        if (!workSchedule) {
-            // Fallback to simple calculation
-            const hour = now.getHours();
-            const minute = now.getMinutes();
-            const currentTime = hour + minute / 60;
-            
-            const workStart = 9; // 9 AM
-            const workEnd = 17; // 5 PM
-            const totalWorkHours = workEnd - workStart;
-            
-            if (currentTime <= workStart) return 0;
-            if (currentTime >= workEnd) return targetHours;
-            
-            const elapsedWorkTime = currentTime - workStart;
-            return (elapsedWorkTime / totalWorkHours) * targetHours;
-        }
-
-        // Use work schedule calculation (similar to popup.js)
-        const startTime = this.parseTime(workSchedule.startTime || '09:00');
-        const endTime = this.parseTime(workSchedule.endTime || '17:00');
-        const totalWorkMinutes = this.getWorkMinutesBetween(startTime, endTime);
-        const elapsedWorkMinutes = this.getElapsedWorkMinutes(startTime, endTime);
-        
-        if (elapsedWorkMinutes <= 0) return 0;
-        if (elapsedWorkMinutes >= totalWorkMinutes) return targetHours;
-        
-        return (elapsedWorkMinutes / totalWorkMinutes) * targetHours;
-    }
-
-    parseTime(timeStr) {
-        const [hours, minutes] = timeStr.split(':').map(Number);
-        return hours * 60 + minutes;
-    }
-
-    getWorkMinutesBetween(startMinutes, endMinutes) {
-        if (endMinutes <= startMinutes) {
-            return (24 * 60 - startMinutes) + endMinutes;
-        }
-        return endMinutes - startMinutes;
-    }
-
-    getElapsedWorkMinutes(startMinutes, endMinutes) {
-        const now = new Date();
-        const currentMinutes = now.getHours() * 60 + now.getMinutes();
-        
-        if (currentMinutes < startMinutes) return 0;
-        if (currentMinutes >= endMinutes) return this.getWorkMinutesBetween(startMinutes, endMinutes);
-        
-        return currentMinutes - startMinutes;
     }
 
     showError(message) {
@@ -282,49 +231,6 @@ class EverTrackInjector {
         
         if (detailsEl) {
             detailsEl.innerHTML = '<small>Check your API token in extension settings</small>';
-        }
-    }
-
-    async loadSettings() {
-        return new Promise((resolve) => {
-            chrome.storage.sync.get([
-                'apiToken',
-                'targetHours',
-                'workSchedule'
-            ], (result) => {
-                resolve({
-                    apiToken: result.apiToken || '',
-                    targetHours: result.targetHours || 8,
-                    workSchedule: result.workSchedule || null
-                });
-            });
-        });
-    }
-
-    async fetchTimeData() {
-        if (!this.settings?.apiToken) return null;
-
-        try {
-            // Use background script to make API call (avoids CORS issues)
-            const response = await new Promise((resolve, reject) => {
-                chrome.runtime.sendMessage({
-                    action: 'fetchTimeData',
-                    apiToken: this.settings.apiToken
-                }, (response) => {
-                    if (chrome.runtime.lastError) {
-                        reject(new Error(chrome.runtime.lastError.message));
-                    } else if (response.success) {
-                        resolve(response.data);
-                    } else {
-                        reject(new Error(response.error));
-                    }
-                });
-            });
-
-            return response;
-        } catch (error) {
-            console.error('EverTrack: API fetch error:', error);
-            throw error;
         }
     }
 

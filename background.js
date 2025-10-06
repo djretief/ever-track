@@ -19,38 +19,61 @@ chrome.runtime.onInstalled.addListener(function() {
 
 // Handle messages from content script
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    console.log('Background: Received message:', request);
+    
     if (request.action === 'fetchTimeData') {
-        fetchTimeDataForContent(request.apiToken)
-            .then(data => sendResponse({success: true, data: data}))
-            .catch(error => sendResponse({success: false, error: error.message}));
+        console.log('Background: Fetching time data with token:', request.apiToken ? 'Present' : 'Missing');
+        console.log('Background: Date range:', request.from, 'to', request.to);
+        
+        fetchTimeDataForContent(request.apiToken, request.from, request.to)
+            .then(data => {
+                console.log('Background: API success, data length:', data?.length || 0);
+                sendResponse({success: true, data: data});
+            })
+            .catch(error => {
+                console.error('Background: API error:', error);
+                sendResponse({success: false, error: error.message});
+            });
         return true; // Keep the message channel open for async response
     }
 });
 
 // Fetch time data for content script (background can make cross-origin requests)
-async function fetchTimeDataForContent(apiToken) {
+async function fetchTimeDataForContent(apiToken, from, to) {
     if (!apiToken) {
         throw new Error('No API token provided');
     }
 
-    const today = new Date().toISOString().split('T')[0];
-    const url = `https://api.everhour.com/time?from=${today}&to=${today}`;
+    const fromDate = from || new Date().toISOString().split('T')[0];
+    const toDate = to || fromDate;
+    const url = `https://api.everhour.com/users/me/time?from=${fromDate}&to=${toDate}`;
+
+    console.log('Background: Making API request to:', url);
+    console.log('Background: Using date range:', fromDate, 'to', toDate);
 
     try {
         const response = await fetch(url, {
+            method: 'GET',
             headers: {
                 'X-Api-Key': apiToken,
                 'Content-Type': 'application/json'
             }
         });
 
+        console.log('Background: API response status:', response.status);
+        console.log('Background: API response headers:', [...response.headers.entries()]);
+
         if (!response.ok) {
-            throw new Error(`API error: ${response.status} ${response.statusText}`);
+            const errorText = await response.text();
+            console.error('Background: API error response:', errorText);
+            throw new Error(`API error: ${response.status} ${response.statusText}${errorText ? ' - ' + errorText : ''}`);
         }
 
-        return await response.json();
+        const data = await response.json();
+        console.log('Background: Successfully fetched data:', data);
+        return data;
     } catch (error) {
-        console.error('Background: API fetch error:', error);
+        console.error('Background: Fetch error:', error);
         throw error;
     }
 }

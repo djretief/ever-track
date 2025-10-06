@@ -209,6 +209,103 @@ button.primary:hover, .button.primary:hover {
     font-style: italic;
 }
 
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #1c1c1e;
+        color: #ffffff;
+    }
+    
+    .container {
+        background: #2c2c2e;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    
+    h1, h2 {
+        color: #ffffff;
+    }
+    
+    h2 {
+        border-bottom-color: #3a3a3c;
+    }
+    
+    label {
+        color: #ffffff;
+    }
+    
+    input[type="text"], 
+    input[type="password"], 
+    input[type="number"],
+    input[type="time"],
+    select {
+        background: #3a3a3c;
+        border-color: #48484a;
+        color: #ffffff;
+    }
+    
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    input[type="number"]:focus,
+    input[type="time"]:focus,
+    select:focus {
+        border-color: #0a84ff;
+        box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2);
+    }
+    
+    input[type="text"]::placeholder,
+    input[type="password"]::placeholder,
+    input[type="number"]::placeholder {
+        color: #8e8e93;
+    }
+    
+    button.secondary, .button.secondary {
+        background: #3a3a3c;
+        color: #ffffff;
+        border-color: #48484a;
+    }
+    
+    button.secondary:hover, .button.secondary:hover {
+        background: #48484a;
+    }
+    
+    .schedule-table th {
+        background: #3a3a3c;
+        color: #ffffff;
+        border-color: #48484a;
+    }
+    
+    .schedule-table td {
+        border-color: #48484a;
+        background: #2c2c2e;
+    }
+    
+    .schedule-table .day-label {
+        color: #ffffff;
+    }
+    
+    .message.success {
+        background: #1e3a1e;
+        border-color: #2d5a2d;
+        color: #4caf50;
+    }
+    
+    .message.error {
+        background: #3a1e1e;
+        border-color: #5a2d2d;
+        color: #f44336;
+    }
+    
+    .message.warning {
+        background: #3a331e;
+        border-color: #5a4d2d;
+        color: #ff9800;
+    }
+    
+    .help-text {
+        color: #8e8e93;
+    }
+}
+
 /* Responsive design */
 @media (max-width: 640px) {
     body {

@@ -207,3 +207,56 @@
         height: 50px;
     }
 }
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .evertrack-widget {
+        background: #2c2c2e;
+        border-color: #48484a;
+        color: #ffffff;
+    }
+    
+    .evertrack-widget-header {
+        background: #3a3a3c;
+        border-bottom-color: #48484a;
+    }
+    
+    .evertrack-widget-title {
+        color: #ffffff;
+    }
+    
+    .evertrack-widget-btn {
+        color: #ffffff;
+        background: #48484a;
+    }
+    
+    .evertrack-widget-btn:hover {
+        background: #5a5a5c;
+    }
+    
+    .evertrack-widget-content {
+        color: #ffffff;
+    }
+    
+    .evertrack-progress-label {
+        color: #ffffff;
+    }
+    
+    .evertrack-progress-bar {
+        background: #48484a;
+    }
+    
+    .evertrack-status {
+        color: #8e8e93;
+    }
+    
+    .evertrack-widget .error {
+        color: #ff453a;
+        background: #2c1f1f;
+        border-color: #3a2626;
+    }
+    
+    .evertrack-widget .loading {
+        color: #8e8e93;
+    }
+}

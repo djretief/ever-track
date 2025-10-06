@@ -161,6 +161,65 @@ body {
     100% { transform: rotate(360deg); }
 }
 
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #1c1c1e;
+        color: #ffffff;
+    }
+    
+    .logo {
+        color: #ffffff;
+    }
+    
+    .mode-label {
+        color: #8e8e93;
+    }
+    
+    .progress-label {
+        color: #ffffff;
+    }
+    
+    .progress-bar {
+        background: #3a3a3c;
+    }
+    
+    .progress-center {
+        background: #ffffff;
+    }
+    
+    .status-info {
+        color: #8e8e93;
+    }
+    
+    .settings-link {
+        border-top-color: #48484a;
+    }
+    
+    .settings-link a {
+        color: #0a84ff;
+    }
+    
+    .settings-link a:hover {
+        color: #409cff;
+    }
+    
+    .error {
+        color: #ff453a;
+        background: #2c1f1f;
+        border-color: #3a2626;
+    }
+    
+    .loading {
+        color: #8e8e93;
+    }
+    
+    .loading-spinner {
+        border-color: #3a3a3c;
+        border-top-color: #0a84ff;
+    }
+}
+
 /* Hidden by default */
 .hidden {
     display: none !important;

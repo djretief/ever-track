@@ -2,10 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const loadingEl = document.getElementById('loading');
     const errorEl = document.getElementById('error');
     const contentEl = document.getElementById('content');
-    const modeLabelEl = document.getElementById('mode-label');             color = '#34C759'; // Green - ahead of target
-            status = `${difference.toFixed(1)}h ahead of expected progress! 🚀`;         color = '#34C759'; // Green - ahead of target
-            status = `${difference.toFixed(1)}h ahead of expected progress! 🚀`;          color = '#34C759'; // Green - ahead of target
-            status = `${difference.toFixed(1)}h ahead of expected progress! 🚀`;   const workedHoursEl = document.getElementById('worked-hours');
+    const modeLabelEl = document.getElementById('mode-label');
+    const workedHoursEl = document.getElementById('worked-hours');
     const targetHoursEl = document.getElementById('target-hours');
     const progressFillEl = document.getElementById('progress-fill');
     const progressTextEl = document.getElementById('progress-text');

@@ -3,6 +3,12 @@
  * Integrates with Everhour interface to show progress widget
  */
 
+// Prevent multiple script initialization
+if (window.everTrackContentScriptLoaded) {
+    console.log('EverTrack Content Script: Already loaded, skipping initialization');
+} else {
+    window.everTrackContentScriptLoaded = true;
+
 class EverTrackContentScript {
     constructor() {
         this.widget = null;
@@ -85,6 +91,37 @@ class EverTrackContentScript {
     }
 
     /**
+     * Find the best insertion point for the widget in Everhour interface
+     */
+    async findInsertionPoint() {
+        console.log('EverTrack: Looking for insertion point...');
+        
+        // Primary target: find the outer-component element and its container
+        let i = 3;
+        let outerComponent = null;
+        while(outerComponent === null && i-- > 0) {
+            outerComponent = document.querySelector('.outer-component');
+            if (!outerComponent) {
+                // Wait for 100ms before trying again
+                i++;
+                await new Promise(resolve => setTimeout(resolve, 100));
+            } else {
+                break;
+            }
+        }
+        console.log(`EverTrack: Outer component:`, outerComponent);
+        
+        if (outerComponent) {
+            const container = outerComponent.closest('.container');
+            console.log('EverTrack: Container found:', !!container);
+            if (container) {
+                console.log('EverTrack: Found container with outer-component');
+                return { container, insertBefore: outerComponent };
+            }
+        }
+    }
+
+    /**
      * Create and insert widget into page
      */
     async createWidget() {
@@ -93,22 +130,19 @@ class EverTrackContentScript {
 
         // Create widget container
         this.widget = EverTrackDOM.createElement('div', {
-            className: 'evertrack-widget',
+            className: 'evertrack-widget evertrack-inline',
             id: 'evertrack-widget'
         });
 
         // Create widget HTML structure
         this.widget.innerHTML = `
             <div class="evertrack-widget-header">
-                <h3 class="evertrack-widget-title">EverTrack</h3>
+                <h3 class="evertrack-widget-title">EverTrack Progress</h3>
                 <div class="evertrack-widget-controls">
                     <button class="evertrack-widget-btn" id="evertrack-refresh" title="Refresh">
                         🔄
                     </button>
-                    <button class="evertrack-widget-btn" id="evertrack-minimize" title="Minimize">
-                        ➖
-                    </button>
-                    <button class="evertrack-widget-btn" id="evertrack-close" title="Close">
+                    <button class="evertrack-widget-btn" id="evertrack-close" title="Hide">
                         ✕
                     </button>
                 </div>
@@ -116,7 +150,7 @@ class EverTrackContentScript {
             <div class="evertrack-widget-content">
                 <div class="loading">Loading...</div>
                 <div class="error hidden"></div>
-                <div class="content hidden">
+                <div class="hidden">
                     <div class="mode-label"></div>
                     <div class="progress-container">
                         <div class="progress-label">
@@ -125,8 +159,9 @@ class EverTrackContentScript {
                         </div>
                         <div class="progress-bar">
                             <div class="progress-center"></div>
-                            <div class="progress-fill"></div>
-                            <div class="progress-text">0%</div>
+                            <div class="progress-fill">
+                                <div class="progress-text">0%</div>
+                            </div>
                         </div>
                     </div>
                     <div class="status-info"></div>
@@ -134,8 +169,30 @@ class EverTrackContentScript {
             </div>
         `;
 
-        // Insert widget into page
-        document.body.appendChild(this.widget);
+        // Find the best insertion point
+        const insertionInfo = await this.findInsertionPoint();
+        
+        if (!insertionInfo) {
+            console.log('EverTrack: Could not find insertion point');
+            return;
+        }
+        
+        console.log('EverTrack: Inserting widget with info:', insertionInfo);
+        
+        // Insert widget into the container, before the outer-component element
+        if (insertionInfo.insertBefore) {
+            // Insert before the specific element (outer-component)
+            insertionInfo.container.insertBefore(this.widget, insertionInfo.insertBefore);
+            console.log('EverTrack: Widget inserted before target element');
+        } else if (insertionInfo.container === document.body) {
+            // If we're inserting into body, prepend it
+            document.body.insertBefore(this.widget, document.body.firstChild);
+            console.log('EverTrack: Widget inserted at beginning of body');
+        } else {
+            // Insert at the beginning of the container
+            insertionInfo.container.insertBefore(this.widget, insertionInfo.container.firstChild);
+            console.log('EverTrack: Widget inserted at beginning of container');
+        }
 
         // Bind widget events
         this.bindWidgetEvents();
@@ -156,73 +213,10 @@ class EverTrackContentScript {
             refreshBtn.addEventListener('click', () => this.updateWidget());
         }
 
-        // Minimize button
-        const minimizeBtn = this.widget.querySelector('#evertrack-minimize');
-        if (minimizeBtn) {
-            minimizeBtn.addEventListener('click', () => this.toggleMinimize());
-        }
-
         // Close button
         const closeBtn = this.widget.querySelector('#evertrack-close');
         if (closeBtn) {
             closeBtn.addEventListener('click', () => this.removeWidget());
-        }
-
-        // Make widget draggable
-        this.makeDraggable();
-    }
-
-    /**
-     * Make widget draggable
-     */
-    makeDraggable() {
-        if (!this.widget) return;
-
-        const header = this.widget.querySelector('.evertrack-widget-header');
-        if (!header) return;
-
-        let isDragging = false;
-        let startX, startY, startLeft, startTop;
-
-        header.style.cursor = 'move';
-
-        header.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            startX = e.clientX;
-            startY = e.clientY;
-            startLeft = this.widget.offsetLeft;
-            startTop = this.widget.offsetTop;
-            e.preventDefault();
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-
-            const deltaX = e.clientX - startX;
-            const deltaY = e.clientY - startY;
-
-            this.widget.style.left = (startLeft + deltaX) + 'px';
-            this.widget.style.top = (startTop + deltaY) + 'px';
-            this.widget.style.right = 'auto';
-        });
-
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-        });
-    }
-
-    /**
-     * Toggle widget minimize state
-     */
-    toggleMinimize() {
-        if (!this.widget) return;
-
-        this.widget.classList.toggle('minimized');
-        
-        const minimizeBtn = this.widget.querySelector('#evertrack-minimize');
-        if (minimizeBtn) {
-            minimizeBtn.textContent = this.widget.classList.contains('minimized') ? '➕' : '➖';
-            minimizeBtn.title = this.widget.classList.contains('minimized') ? 'Expand' : 'Minimize';
         }
     }
 
@@ -263,7 +257,7 @@ class EverTrackContentScript {
 
             // Calculate progress
             const targetHours = EverTrackSettings.getTargetHours(this.settings);
-            const progress = EverTrackTime.calculateProgress(this.timeData, targetHours);
+            const progress = EverTrackTime.calculateProgress(this.timeData, targetHours, this.settings.trackingMode, this.settings.workSchedule);
 
             // Update display
             EverTrackDOM.showContent(elements.content, elements.loading, elements.error);
@@ -342,3 +336,5 @@ class EverTrackContentScript {
 
 // Initialize content script when script loads
 new EverTrackContentScript();
+
+}

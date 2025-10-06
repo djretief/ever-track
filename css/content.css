@@ -3,23 +3,25 @@
 
 /* EverTrack widget container */
 .evertrack-widget {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 280px;
+    width: 100%;
+    margin: 16px auto;
     background: white;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    z-index: 10000;
     transition: all 0.3s ease;
 }
 
+/* Inline variation for content injection */
+.evertrack-widget.evertrack-inline {
+    position: relative;
+    display: block;
+    z-index: 1000;
+}
+
 .evertrack-widget.minimized {
-    width: 60px;
-    height: 60px;
-    overflow: hidden;
+    display: none;
 }
 
 /* Widget header */
@@ -88,7 +90,7 @@
     justify-content: space-between;
     margin-bottom: 6px;
     font-size: 12px;
-    color: #333;
+    color: black;
 }
 
 .evertrack-widget .progress-bar {
@@ -115,13 +117,16 @@
     transition: all 0.3s ease;
     position: absolute;
     top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .evertrack-widget .progress-fill.under-target {
     left: 0;
     right: 50%;
     border-radius: 10px 0 0 10px;
-    background: #ff4444;
+    background: #e87373;
     transform-origin: right center;
 }
 
@@ -129,7 +134,7 @@
     left: 50%;
     right: 0;
     border-radius: 0 10px 10px 0;
-    background: #44ff44;
+    background: #9ee09e;
     transform-origin: left center;
 }
 
@@ -137,12 +142,12 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
     font-size: 10px;
     font-weight: bold;
-    color: white;
+    color: black;
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     z-index: 20;
+    transform-origin: center center;
 }
 
 /* Status info in widget */
@@ -172,18 +177,6 @@
     padding: 16px;
 }
 
-/* Minimize button specific styling */
-.evertrack-widget.minimized .evertrack-widget-header {
-    border-bottom: none;
-    border-radius: 8px;
-    padding: 8px;
-    justify-content: center;
-}
-
-.evertrack-widget.minimized .evertrack-widget-title {
-    display: none;
-}
-
 /* Animation for smooth transitions */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
@@ -197,14 +190,8 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .evertrack-widget {
-        top: 10px;
-        right: 10px;
-        width: 240px;
-    }
-    
-    .evertrack-widget.minimized {
-        width: 50px;
-        height: 50px;
+        margin: 12px;
+        max-width: calc(100% - 24px);
     }
 }
 

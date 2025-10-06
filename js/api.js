@@ -3,6 +3,9 @@
  * Handles all Everhour API interactions
  */
 
+// Prevent multiple declarations
+if (!window.EverTrackAPI) {
+
 const EverTrackAPI = {
     /**
      * Fetch time data from Everhour API
@@ -18,95 +21,81 @@ const EverTrackAPI = {
         const { from, to } = this.getDateRange(trackingMode);
         console.log(`EverTrack API: Fetching ${trackingMode} data from ${from.toDateString()} to ${to.toDateString()}`);
 
-        // Based on Everhour API documentation, try the most common patterns
-        const apiAttempts = [
-            // 1. Try /users/me first to validate token
-            {
-                name: 'User validation',
-                url: 'https://api.everhour.com/users/me',
-                method: 'GET'
-            },
-            // 2. Try /time endpoint (most likely for time tracking)
-            {
-                name: 'Time endpoint',
-                url: `https://api.everhour.com/time?from=${this.formatDate(from)}&to=${this.formatDate(to)}`,
-                method: 'GET'
-            },
-            // 3. Try /time without parameters
-            {
-                name: 'Time endpoint (no params)',
-                url: 'https://api.everhour.com/time',
-                method: 'GET'
-            },
-            // 4. Try /reports endpoint
-            {
-                name: 'Reports endpoint',
-                url: 'https://api.everhour.com/reports',
-                method: 'GET'
-            }
-        ];
+        try {
+            // Step 1: Get the user ID from /users/me
+            console.log('EverTrack API: Getting user ID from /users/me');
+            const userResponse = await fetch('https://api.everhour.com/users/me', {
+                method: 'GET',
+                headers: {
+                    'X-Api-Key': apiToken,
+                    'Content-Type': 'application/json'
+                }
+            });
 
-        for (const attempt of apiAttempts) {
-            try {
-                console.log(`EverTrack API: Trying ${attempt.name}: ${attempt.method} ${attempt.url}`);
+            if (!userResponse.ok) {
+                const errorText = await userResponse.text();
+                console.error(`EverTrack API: User endpoint failed - ${userResponse.status}: ${errorText}`);
                 
-                const response = await fetch(attempt.url, {
-                    method: attempt.method,
-                    headers: {
-                        'X-Api-Key': apiToken,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                console.log(`EverTrack API: ${attempt.name} response status: ${response.status}`);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(`EverTrack API: ${attempt.name} success:`, data);
-                    
-                    // If this is just user validation, continue to time endpoints
-                    if (attempt.url.includes('/users/me')) {
-                        console.log('EverTrack API: Token validated successfully');
-                        continue;
-                    }
-                    
-                    // Try to extract time data
-                    let totalHours = 0;
-                    
-                    if (Array.isArray(data)) {
-                        totalHours = data.reduce((total, entry) => {
-                            return total + ((entry.time || entry.duration || 0) / 3600);
-                        }, 0);
-                    } else if (data.time !== undefined) {
-                        totalHours = data.time / 3600;
-                    } else if (data.duration !== undefined) {
-                        totalHours = data.duration / 3600;
-                    }
-                    
-                    console.log(`EverTrack API: Total hours calculated: ${totalHours}`);
-                    return totalHours;
+                if (userResponse.status === 401) {
+                    throw new Error('Invalid API token. Please check your settings.');
+                } else if (userResponse.status === 403) {
+                    throw new Error('API access forbidden. Please check your token permissions.');
                 } else {
-                    const errorText = await response.text();
-                    console.log(`EverTrack API: ${attempt.name} failed - ${response.status}: ${errorText}`);
-                    
-                    if (response.status === 401) {
-                        throw new Error('Invalid API token. Please check your settings.');
-                    } else if (response.status === 403) {
-                        throw new Error('API access forbidden. Please check your token permissions.');
-                    }
-                    // Continue to next attempt for other errors
+                    throw new Error(`Failed to authenticate: ${userResponse.status} ${errorText}`);
                 }
-            } catch (error) {
-                console.error(`EverTrack API: ${attempt.name} error:`, error);
-                
-                if (error.message.includes('Invalid API token') || error.message.includes('forbidden')) {
-                    throw error; // Don't retry auth errors
-                }
-                // Continue to next attempt for network errors
             }
-        }
 
-        throw new Error('Could not find a working API endpoint. Please check the Everhour API documentation or contact support.');
+            const userData = await userResponse.json();
+            console.log('EverTrack API: User data received:', userData);
+            
+            const userId = userData.id;
+            if (!userId) {
+                throw new Error('User ID not found in response');
+            }
+
+            // Step 2: Get time records using the user ID
+            const fromDate = this.formatDate(from);
+            const toDate = this.formatDate(to);
+            const timeUrl = `https://api.everhour.com/users/${userId}/time?from=${fromDate}&to=${toDate}&limit=10000&page=1`;
+            
+            console.log(`EverTrack API: Fetching time records from ${timeUrl}`);
+            const timeResponse = await fetch(timeUrl, {
+                method: 'GET',
+                headers: {
+                    'X-Api-Key': apiToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!timeResponse.ok) {
+                const errorText = await timeResponse.text();
+                console.error(`EverTrack API: Time records endpoint failed - ${timeResponse.status}: ${errorText}`);
+                throw new Error(`Failed to fetch time records: ${timeResponse.status} ${errorText}`);
+            }
+
+            const timeData = await timeResponse.json();
+            console.log('EverTrack API: Time records received:', timeData);
+
+            // Step 3: Calculate total hours from the time records
+            let totalHours = 0;
+            
+            if (Array.isArray(timeData)) {
+                totalHours = timeData.reduce((total, entry) => {
+                    // Time is typically stored in seconds in Everhour API
+                    const entryHours = (entry.time || entry.duration || 0) / 3600;
+                    return total + entryHours;
+                }, 0);
+            } else {
+                console.warn('EverTrack API: Expected array of time records, got:', typeof timeData);
+            }
+            
+            console.log(`EverTrack API: Total hours calculated: ${totalHours}`);
+            return totalHours;
+
+        } catch (error) {
+            console.error('EverTrack API: Error fetching time data:', error);
+            throw error;
+        }
     },
 
     /**
@@ -157,4 +146,6 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 if (typeof window !== 'undefined') {
     window.EverTrackAPI = EverTrackAPI;
+}
+
 }

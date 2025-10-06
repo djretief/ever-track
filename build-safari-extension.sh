@@ -65,11 +65,29 @@ validate_extension() {
         exit 1
     fi
     
-    # Check if required files exist
-    required_files=("popup.html" "popup.js" "background.js" "settings.html" "settings.js")
+    # Check if required root-level files exist
+    required_files=("popup.html" "background.js" "settings.html" "manifest.json")
     for file in "${required_files[@]}"; do
         if [ ! -f "$EXTENSION_DIR/$file" ]; then
             print_error "Required file $file not found"
+            exit 1
+        fi
+    done
+    
+    # Check if modular JS files exist
+    required_js_files=("js/api.js" "js/settings.js" "js/time-utils.js" "js/dom-utils.js" "js/popup.js" "js/content.js")
+    for file in "${required_js_files[@]}"; do
+        if [ ! -f "$EXTENSION_DIR/$file" ]; then
+            print_error "Required modular JS file $file not found"
+            exit 1
+        fi
+    done
+    
+    # Check if CSS files exist
+    required_css_files=("css/popup.css" "css/settings.css" "css/content.css")
+    for file in "${required_css_files[@]}"; do
+        if [ ! -f "$EXTENSION_DIR/$file" ]; then
+            print_error "Required CSS file $file not found"
             exit 1
         fi
     done

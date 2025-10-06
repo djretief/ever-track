@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "EverTrack - Everhour Time Tracker",
-  "version": "1.0",
-  "description": "Track your Everhour time against daily, weekly, and monthly targets with a visual progress bar.",
+  "version": "2.0.0",
+  "description": "Track your Everhour time against daily, weekly, and monthly targets with a visual progress bar. Refactored with modular architecture.",
   
   "permissions": [
     "https://api.everhour.com/*",
@@ -29,11 +29,26 @@
   
   "content_scripts": [
     {
-      "matches": ["https://app.everhour.com/*"],
-      "js": ["utils.js", "content.js"],
-      "css": ["content.css"],
+      "matches": [
+        "https://app.everhour.com/*",
+        "https://*.everhour.com/*"
+      ],
+      "js": [
+        "js/api.js",
+        "js/settings.js", 
+        "js/time-utils.js",
+        "js/dom-utils.js",
+        "js/content.js"
+      ],
+      "css": ["css/content.css"],
       "run_at": "document_end"
     }
+  ],
+  
+  "web_accessible_resources": [
+    "css/*.css",
+    "js/*.js",
+    "icons/*.png"
   ],
   
   "icons": {

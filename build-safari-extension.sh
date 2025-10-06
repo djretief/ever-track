@@ -6,8 +6,8 @@
 set -e  # Exit on any error
 
 # Configuration
-EXTENSION_DIR="/Users/danielretief/Development/EverTrack"
-OUTPUT_DIR="/Users/danielretief/Development/EverTrack-Safari"
+EXTENSION_DIR="$HOME/Development/ever-track"
+OUTPUT_DIR="$HOME/Development/EverTrack-Safari"
 APP_NAME="EverTrack"
 BUNDLE_ID="com.evertrack.safari-extension"
 

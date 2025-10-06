@@ -7,7 +7,7 @@ A Safari browser extension that helps you track your Everhour time against daily
 - 📊 **Smart Progress Tracking**: Shows progress against pro-rated targets based on elapsed work hours, not calendar time
 - 🕐 **Flexible Work Schedule**: Configure different work hours for each day of the week
 - 🎯 **Multiple Time Periods**: Track daily, weekly, and monthly progress
-- 🟢 **Intelligent Color-coding**: Green when on track, red when behind, orange when ahead
+- 🟢 **Intelligent Color-coding**: Green when ahead, orange when behind, red when behind by more than 15%.
 - ⚙️ **Configurable Targets**: Set your own daily, weekly, and monthly hour targets
 - 🔐 **Secure API Integration**: Safely store your Everhour API token
 - 📱 **Clean Interface**: Simple popup design that doesn't interfere with browsing

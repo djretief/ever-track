@@ -423,4 +423,4 @@ EverTrack-Safari/EverTrack/         # Packaged Safari extension
 
 If you find this plugin helpful, consider supporting me:
 
-<a href="https://www.buymeacoffee.com/djretief"><img src="https://img.buymeacoffee.com/button-api/?slug=djretief&font_family=Inter&button_colour=FFDD00"></a>
+<a href="https://www.buymeacoffee.com/djretiefr"><img src="https://img.buymeacoffee.com/button-api/?slug=djretiefr&font_family=Inter&button_colour=FFDD00"></a>

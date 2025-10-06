@@ -3,6 +3,9 @@
  * Handles settings management and storage
  */
 
+// Prevent multiple declarations
+if (!window.EverTrackSettings) {
+
 const EverTrackSettings = {
     /**
      * Default settings configuration
@@ -476,4 +479,6 @@ class EverTrackSettingsPage {
 // Initialize settings page when script loads (only if in settings page context)
 if (document.getElementById('settings-form')) {
     new EverTrackSettingsPage();
+}
+
 }

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 350px;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .progress-container {
+            margin-bottom: 15px;
+        }
+        
+        .mode-label {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: capitalize;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 24px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-center {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: #333;
+            z-index: 10;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            position: absolute;
+            top: 0;
+        }
+        
+        .progress-fill.under-target {
+            right: 50%;
+            border-radius: 12px 0 0 12px;
+        }
+        
+        .progress-fill.over-target {
+            left: 50%;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .status-info {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .settings-link {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .settings-link a {
+            color: #007AFF;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        
+        .error {
+            color: #ff3b30;
+            text-align: center;
+            font-size: 13px;
+            padding: 10px;
+            background: #fff5f5;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">EverTrack</div>
+    </div>
+    
+    <div id="loading" class="loading">
+        Loading your time data...
+    </div>
+    
+    <div id="error" class="error" style="display: none;"></div>
+    
+    <div id="content" style="display: none;">
+        <div id="mode-label" class="mode-label"></div>
+        
+        <div class="progress-container">
+            <div class="progress-label">
+                <span id="worked-hours">0h</span>
+                <span id="target-hours">0h target</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-center"></div>
+                <div id="progress-fill" class="progress-fill"></div>
+                <div id="progress-text" class="progress-text">0%</div>
+            </div>
+        </div>
+        
+        <div id="status-info" class="status-info"></div>
+    </div>
+    
+    <div class="settings-link">
+        <a href="#" id="settings-link">Settings</a>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

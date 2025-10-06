@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>EverTrack Settings</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        input[type="text"], input[type="password"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        input[type="number"] {
+            width: 120px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+            background: white;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .targets-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .target-group {
+            text-align: center;
+        }
+        
+        .target-group label {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .save-btn {
+            background: #007AFF;
+            color: white;
+        }
+        
+        .save-btn:hover {
+            background: #0056CC;
+        }
+        
+        .save-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .test-btn {
+            background: #34C759;
+            color: white;
+        }
+        
+        .test-btn:hover {
+            background: #28A745;
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .api-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007AFF;
+        }
+        
+        .api-info h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .api-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .api-info a {
+            color: #007AFF;
+            text-decoration: none;
+        }
+        
+        .api-info a:hover {
+            text-decoration: underline;
+        }
+
+        .schedule-section {
+            margin-top: 15px;
+        }
+
+        .schedule-help {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #34C759;
+        }
+
+        .schedule-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .day-schedule {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        .day-schedule label {
+            font-weight: 500;
+            margin: 0;
+            width: 80px;
+            color: #333;
+        }
+
+        .time-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .time-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .time-inputs input[type="time"] {
+            width: 100px;
+            padding: 6px 8px;
+            font-size: 13px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .time-inputs span {
+            color: #666;
+            font-size: 13px;
+        }
+
+        input[type="checkbox"]:checked + .time-inputs {
+            opacity: 1;
+        }
+
+        input[type="checkbox"]:not(:checked) + .time-inputs {
+            opacity: 0.3;
+        }
+
+        input[type="checkbox"]:not(:checked) + .time-inputs input {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>EverTrack Settings</h1>
+        
+        <div class="api-info">
+            <h3>Everhour API Setup</h3>
+            <p>To use EverTrack, you need to provide your Everhour API token.</p>
+            <p>You can find your API token in your <a href="https://app.everhour.com/#/account/profile" target="_blank">Everhour account settings</a>.</p>
+        </div>
+        
+        <form id="settings-form">
+            <div class="form-group">
+                <label for="api-token">Everhour API Token *</label>
+                <input type="password" id="api-token" required>
+                <div class="help-text">Your personal API token from Everhour</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="tracking-mode">Tracking Mode</label>
+                <select id="tracking-mode">
+                    <option value="daily">Daily Tracking</option>
+                    <option value="weekly" selected>Weekly Tracking</option>
+                    <option value="monthly">Monthly Tracking</option>
+                </select>
+                <div class="help-text">Choose how you want to track your time progress</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Time Targets</label>
+                <div class="targets-grid">
+                    <div class="target-group">
+                        <label for="daily-target">Daily Hours</label>
+                        <input type="number" id="daily-target" min="0" max="24" step="0.5" value="8">
+                    </div>
+                    <div class="target-group">
+                        <label for="weekly-target">Weekly Hours</label>
+                        <input type="number" id="weekly-target" min="0" max="168" step="0.5" value="38">
+                    </div>
+                    <div class="target-group">
+                        <label for="monthly-target">Monthly Hours</label>
+                        <input type="number" id="monthly-target" min="0" max="744" step="0.5" value="160">
+                    </div>
+                </div>
+                <div class="help-text">Set your target hours for each time period</div>
+            </div>
+
+            <div class="form-group">
+                <label>Work Schedule</label>
+                <div class="schedule-section">
+                    <div class="help-text schedule-help">Configure your work hours for each day. Progress will be calculated based on elapsed work time, not calendar time.</div>
+                    
+                    <div class="schedule-grid">
+                        <div class="day-schedule">
+                            <label for="monday-enabled">Monday</label>
+                            <div class="time-controls">
+                                <input type="checkbox" id="monday-enabled" checked>
+                                <span class="time-inputs">
+                                    <input type="time" id="monday-start" value="09:00">
+                                    <span>to</span>
+                                    <input type="time" id="monday-end" value="17:00">
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="day-schedule">
+                            <label for="tuesday-enabled">Tuesday</label>
+                            <div class="time-controls">
+                                <input type="checkbox" id="tuesday-enabled" checked>
+                                <span class="time-inputs">
+                                    <input type="time" id="tuesday-start" value="09:00">
+                                    <span>to</span>
+                                    <input type="time" id="tuesday-end" value="17:00">
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="day-schedule">
+                            <label for="wednesday-enabled">Wednesday</label>
+                            <div class="time-controls">
+                                <input type="checkbox" id="wednesday-enabled" checked>
+                                <span class="time-inputs">
+                                    <input type="time" id="wednesday-start" value="08:00">
+                                    <span>to</span>
+                                    <input type="time" id="wednesday-end" value="17:00">
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="day-schedule">
+                            <label for="thursday-enabled">Thursday</label>
+                            <div class="time-controls">
+                                <input type="checkbox" id="thursday-enabled" checked>
+                                <span class="time-inputs">
+                                    <input type="time" id="thursday-start" value="07:00">
+                                    <span>to</span>
+                                    <input type="time" id="thursday-end" value="15:00">
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="day-schedule">
+                            <label for="friday-enabled">Friday</label>
+                            <div class="time-controls">
+                                <input type="checkbox" id="friday-enabled" checked>
+                                <span class="time-inputs">
+                                    <input type="time" id="friday-start" value="10:00">
+                                    <span>to</span>
+                                    <input type="time" id="friday-end" value="14:00">
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="day-schedule">
+                            <label for="saturday-enabled">Saturday</label>
+                            <div class="time-controls">
+                                <input type="checkbox" id="saturday-enabled">
+                                <span class="time-inputs">
+                                    <input type="time" id="saturday-start" value="09:00">
+                                    <span>to</span>
+                                    <input type="time" id="saturday-end" value="17:00">
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="day-schedule">
+                            <label for="sunday-enabled">Sunday</label>
+                            <div class="time-controls">
+                                <input type="checkbox" id="sunday-enabled">
+                                <span class="time-inputs">
+                                    <input type="time" id="sunday-start" value="09:00">
+                                    <span>to</span>
+                                    <input type="time" id="sunday-end" value="17:00">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button type="button" id="test-btn" class="test-btn">Test API Connection</button>
+                <button type="submit" class="save-btn">Save Settings</button>
+            </div>
+        </form>
+        
+        <div id="status" class="status" style="display: none;"></div>
+    </div>
+    
+    <script src="settings.js"></script>
+</body>
+</html>

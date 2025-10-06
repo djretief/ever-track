@@ -17,6 +17,44 @@ chrome.runtime.onInstalled.addListener(function() {
     });
 });
 
+// Handle messages from content script
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (request.action === 'fetchTimeData') {
+        fetchTimeDataForContent(request.apiToken)
+            .then(data => sendResponse({success: true, data: data}))
+            .catch(error => sendResponse({success: false, error: error.message}));
+        return true; // Keep the message channel open for async response
+    }
+});
+
+// Fetch time data for content script (background can make cross-origin requests)
+async function fetchTimeDataForContent(apiToken) {
+    if (!apiToken) {
+        throw new Error('No API token provided');
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const url = `https://api.everhour.com/time?from=${today}&to=${today}`;
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'X-Api-Key': apiToken,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status} ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Background: API fetch error:', error);
+        throw error;
+    }
+}
+
 // Handle extension icon click
 chrome.browserAction.onClicked.addListener(function(tab) {
     // This is handled by the popup, but we can add additional logic here if needed

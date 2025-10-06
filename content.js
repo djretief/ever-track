@@ -141,35 +141,43 @@ class EverTrackInjector {
             color = '#34C759'; // Green
             percentage = Math.min(100, (worked / proRatedTarget) * 100);
             status = `${difference.toFixed(1)}h ahead! 🚀`;
+            statusEl.className = 'evertrack-status ahead';
         } else if (difference >= 0) {
             // Exactly on target
             color = '#34C759'; // Green
             percentage = 100;
             status = 'On track! 🎯';
+            statusEl.className = 'evertrack-status on-track';
         } else {
             // Behind target
             const underPercentage = Math.abs(difference / proRatedTarget) * 100;
-            percentage = (worked / proRatedTarget) * 100;
+            percentage = Math.max(0, (worked / proRatedTarget) * 100);
             
             if (underPercentage <= 15) {
                 color = '#FF9500'; // Orange
                 status = `${Math.abs(difference).toFixed(1)}h behind`;
+                statusEl.className = 'evertrack-status behind';
             } else {
                 color = '#FF3B30'; // Red
                 status = `${Math.abs(difference).toFixed(1)}h behind`;
+                statusEl.className = 'evertrack-status significantly-behind';
             }
         }
 
         // Update the display
         statusEl.textContent = status;
-        fillEl.style.width = `${percentage}%`;
+        statusEl.style.color = '';  // Reset inline color, use class-based styling
+        
+        fillEl.style.width = `${Math.max(0, percentage)}%`;
         fillEl.style.backgroundColor = color;
+        fillEl.style.opacity = percentage > 0 ? '1' : '0';
+        
         textEl.textContent = `${worked.toFixed(1)}h / ${proRatedTarget.toFixed(1)}h`;
         
         // Update details
         const targetHours = this.getTodayTargetHours();
         detailsEl.innerHTML = `
-            <small>Target: ${targetHours}h | Progress: ${percentage.toFixed(0)}%</small>
+            <small>Target: ${targetHours}h | Progress: ${Math.round(percentage)}%</small>
         `;
     }
 
@@ -254,9 +262,26 @@ class EverTrackInjector {
 
     showError(message) {
         const statusEl = document.getElementById('evertrack-status');
+        const fillEl = document.getElementById('evertrack-progress-fill');
+        const textEl = document.getElementById('evertrack-progress-text');
+        const detailsEl = document.getElementById('evertrack-details');
+        
         if (statusEl) {
             statusEl.textContent = message;
-            statusEl.style.color = '#FF3B30';
+            statusEl.className = 'evertrack-status error';
+        }
+        
+        if (fillEl) {
+            fillEl.style.width = '0%';
+            fillEl.style.opacity = '0';
+        }
+        
+        if (textEl) {
+            textEl.textContent = 'Error loading data';
+        }
+        
+        if (detailsEl) {
+            detailsEl.innerHTML = '<small>Check your API token in extension settings</small>';
         }
     }
 
@@ -279,25 +304,27 @@ class EverTrackInjector {
     async fetchTimeData() {
         if (!this.settings?.apiToken) return null;
 
-        const today = new Date().toISOString().split('T')[0];
-        const url = `https://api.everhour.com/time?from=${today}&to=${today}`;
-
         try {
-            const response = await fetch(url, {
-                headers: {
-                    'X-Api-Key': this.settings.apiToken,
-                    'Content-Type': 'application/json'
-                }
+            // Use background script to make API call (avoids CORS issues)
+            const response = await new Promise((resolve, reject) => {
+                chrome.runtime.sendMessage({
+                    action: 'fetchTimeData',
+                    apiToken: this.settings.apiToken
+                }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        reject(new Error(chrome.runtime.lastError.message));
+                    } else if (response.success) {
+                        resolve(response.data);
+                    } else {
+                        reject(new Error(response.error));
+                    }
+                });
             });
 
-            if (!response.ok) {
-                throw new Error(`API error: ${response.status}`);
-            }
-
-            return await response.json();
+            return response;
         } catch (error) {
             console.error('EverTrack: API fetch error:', error);
-            return null;
+            throw error;
         }
     }
 

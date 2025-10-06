@@ -24,24 +24,34 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function loadData() {
         try {
+            console.log('EverTrack: Starting to load data...');
+            
             // Load settings first
             settings = await loadSettings();
+            console.log('EverTrack: Settings loaded:', settings);
             
             if (!settings.apiToken) {
+                console.log('EverTrack: No API token found');
                 showError('Please configure your Everhour API token in settings.');
                 return;
             }
             
             // Load time data
+            console.log('EverTrack: Fetching time data...');
             timeData = await fetchTimeData();
+            console.log('EverTrack: Time data received:', timeData);
             
-            if (timeData) {
+            if (timeData !== null && timeData !== undefined) {
+                console.log('EverTrack: Showing content and updating display');
                 showContent();
                 updateDisplay();
+            } else {
+                console.error('EverTrack: Time data is null/undefined');
+                showError('No time data received from Everhour API.');
             }
         } catch (error) {
-            console.error('Error loading data:', error);
-            showError('Failed to load time data. Please check your settings.');
+            console.error('EverTrack: Error loading data:', error);
+            showError(`Failed to load time data: ${error.message}`);
         }
     }
     
@@ -72,6 +82,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const today = new Date();
         let from, to;
         
+        console.log('EverTrack: Fetching time data for mode:', settings.trackingMode);
+        
         // Calculate date range based on tracking mode
         switch (settings.trackingMode) {
             case 'daily':
@@ -81,6 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 from = new Date(today);
                 from.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
                 to = today;
+                console.log('EverTrack: Weekly date range - from:', from.toDateString(), 'to:', to.toDateString());
                 break;
             case 'monthly':
                 from = new Date(today.getFullYear(), today.getMonth(), 1); // Start of month
@@ -95,15 +108,21 @@ document.addEventListener('DOMContentLoaded', function() {
         // Format dates for API
         const formatDate = (date) => date.toISOString().split('T')[0];
         
+        console.log('EverTrack: API date range - from:', formatDate(from), 'to:', formatDate(to));
+        
         try {
             const data = await fetchEverhourData(formatDate(from), formatDate(to));
+            console.log('EverTrack: API response data:', data);
             return calculateTotalHours(data);
         } catch (error) {
+            console.error('EverTrack: Error fetching time data:', error);
             throw new Error('Failed to fetch time data from Everhour API');
         }
     }
     
     async function fetchEverhourData(from, to) {
+        console.log('EverTrack: Making API request to Everhour with dates:', from, 'to', to);
+        
         const response = await fetch(`https://api.everhour.com/users/me/time?from=${from}&to=${to}`, {
             headers: {
                 'X-Api-Key': settings.apiToken,
@@ -111,11 +130,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
+        console.log('EverTrack: API response status:', response.status, response.statusText);
+        
         if (!response.ok) {
+            console.error('EverTrack: API request failed with status:', response.status);
             throw new Error(`API request failed: ${response.status}`);
         }
         
-        return await response.json();
+        const data = await response.json();
+        console.log('EverTrack: API response data length:', data.length);
+        return data;
     }
     
     function calculateTotalHours(timeEntries) {
@@ -246,6 +270,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const difference = worked - proRatedTarget;
         const percentage = proRatedTarget > 0 ? Math.round((worked / proRatedTarget) * 100) : 0;
         
+        console.log('EverTrack: Progress calculation - worked:', worked, 'target:', proRatedTarget, 'difference:', difference);
+        
         // Update mode label with progress information
         const progressPercent = Math.round(progress * 100);
         modeLabelEl.textContent = `${settings.trackingMode} tracking (${progressPercent}% through work period)`;
@@ -255,45 +281,53 @@ document.addEventListener('DOMContentLoaded', function() {
         targetHoursEl.textContent = `${proRatedTarget}h expected (${fullTarget}h total)`;
         progressTextEl.textContent = `${percentage}%`;
         
-        // Update progress bar - centered design
+        // Update progress bar - centered design with hours-based scale
+        // Full bar left = -20h, Full bar right = +20h, Center = 0h
         progressFillEl.classList.remove('under-target', 'over-target');
         
+        const MAX_HOURS_SCALE = 20; // ±20 hours represents full bar width
         let color, status, fillWidth;
         
+        // Calculate fill width based on absolute hour difference
+        // Scale: -20h = 0%, 0h = 50%, +20h = 100%
+        const hourScale = Math.abs(difference) / MAX_HOURS_SCALE; // 0 to 1+ scale
+        const clampedScale = Math.min(hourScale, 1); // Cap at 100% of half-bar
+        fillWidth = clampedScale * 50; // Convert to 0-50% (half of total bar)
+        
+        console.log('EverTrack: Progress bar calculation - difference:', difference, 'hourScale:', hourScale, 'fillWidth:', fillWidth);
+        
         if (difference <= 0) {
-            // Under or at expected target
+            // Under or at expected target (left side of center)
             progressFillEl.classList.add('under-target');
-            const targetPercentage = proRatedTarget > 0 ? (worked / proRatedTarget) * 100 : 0;
-            fillWidth = Math.min(50, (targetPercentage / 100) * 50); // Max 50% (left half)
-            progressFillEl.style.width = `${fillWidth}%`;
-            
-            const underPercentage = Math.abs(difference / proRatedTarget) * 100;
             
             if (difference >= 0) {
-                // Exactly on target
+                // Exactly on target - no fill, just center line
+                fillWidth = 0;
                 color = '#34C759'; // Green - on track
                 status = 'On track! 🎯';
-            } else if (underPercentage <= 15) {
-                // Under target by up to 15% - ORANGE
-                color = '#FF9500'; // Orange - slightly behind
-                status = `${Math.abs(difference).toFixed(1)}h behind expected progress`;
             } else {
-                // Under target by more than 15% - RED
-                color = '#FF3B30'; // Red - significantly behind
+                // Behind target - fill left side
+                const underPercentage = Math.abs(difference / proRatedTarget) * 100;
+                
+                if (underPercentage <= 15) {
+                    color = '#FF9500'; // Orange - slightly behind
+                } else {
+                    color = '#FF3B30'; // Red - significantly behind
+                }
                 status = `${Math.abs(difference).toFixed(1)}h behind expected progress`;
             }
         } else {
-            // Ahead of expected target
+            // Ahead of expected target (right side of center)
             progressFillEl.classList.add('over-target');
-            const overPercentage = ((difference / proRatedTarget) * 100);
-            fillWidth = Math.min(50, (overPercentage / 100) * 50); // Max 50% (right half)
-            progressFillEl.style.width = `${fillWidth}%`;
-            
             color = '#34C759'; // Green - ahead of target
-            status = `${difference.toFixed(1)}h ahead of expected progress! �`;
+            status = `${difference.toFixed(1)}h ahead of expected progress! 🎉`;
         }
         
+        // Set the width and background color
+        progressFillEl.style.width = `${fillWidth}%`;
         progressFillEl.style.backgroundColor = color;
+        
+        console.log('EverTrack: Applied styles - width:', `${fillWidth}%`, 'class:', difference <= 0 ? 'under-target' : 'over-target');
         statusInfoEl.innerHTML = `
             <div>${status}</div>
             <div style="font-size: 12px; margin-top: 4px; opacity: 0.8;">

@@ -3,6 +3,9 @@
  * Handles DOM manipulation and UI updates
  */
 
+// Prevent multiple declarations
+if (!window.EverTrackDOM) {
+
 const EverTrackDOM = {
     /**
      * Show element
@@ -126,7 +129,14 @@ const EverTrackDOM = {
 
         // Update progress text
         if (progressText) {
-            this.setText(progressText, `${Math.round(progress.progressPercentage)}%`);
+            let progressTextInput = `${Math.round(progress.difference)}h`;
+            if (progress.difference >= 0) progressTextInput = `+${Math.round(progress.difference)}h`;
+            this.setText(progressText, progressTextInput);
+            
+            // Counteract the parent's scaleX transform to maintain text size while keeping it centered
+            if (progress.scale > 0) {
+                progressText.style.transform = `translate(-50%, -50%) scaleX(${1 / progress.scale})`;
+            }
         }
     },
 
@@ -258,4 +268,6 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 if (typeof window !== 'undefined') {
     window.EverTrackDOM = EverTrackDOM;
+}
+
 }

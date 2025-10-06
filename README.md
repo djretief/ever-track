@@ -416,3 +416,11 @@ EverTrack-Safari/EverTrack/         # Packaged Safari extension
 2. Re-run the safari-web-extension-packager to update the Xcode project
 3. Build and run from Xcode to test changes
 4. For minor changes, you can edit files directly in the `EverTrack Extension/` folder and rebuild
+
+---
+
+## Support
+
+If you find this plugin helpful, consider supporting me:
+
+<a href="https://www.buymeacoffee.com/djretief"><img src="https://img.buymeacoffee.com/button-api/?slug=djretief&font_family=Inter&button_colour=FFDD00"></a>

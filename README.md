@@ -140,9 +140,9 @@ This project includes automated build scripts to make the development process ea
    - Click the EverTrack icon in Safari's toolbar to see your progress
    - Use the Daily/Weekly/Monthly buttons to switch between time periods
    - The progress bar shows your current status:
-     - **🟢 Green**: On track (90-110% of target)
-     - **🔴 Red**: Behind target (shows hours needed to catch up)
-     - **🟠 Orange**: Ahead of target (shows excess hours)
+     - **🟢 Green**: Ahead of target (shows hours ahead)
+     - **🔴 Red**: Behind target by more than 15% (shows hours needed to catch up)
+     - **🟠 Orange**: Ahead of target (shows hours needed to catch up)
 
 3. **Keep the App Running**:
    - ⚠️ **Important**: The Safari extension only works while the macOS app is running

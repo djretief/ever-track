@@ -124,7 +124,7 @@ class EverTrackPopup {
         const targetHours = EverTrackSettings.getTargetHours(this.settings);
         
         // Calculate progress
-        const progress = EverTrackTime.calculateProgress(this.timeData, targetHours);
+        const progress = EverTrackTime.calculateProgress(this.timeData, targetHours, this.settings.trackingMode, this.settings.workSchedule);
         
         console.log('EverTrack Popup: Progress calculation:', progress);
 

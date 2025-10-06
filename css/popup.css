@@ -74,7 +74,7 @@ body {
     left: 0;
     right: 50%;
     border-radius: 12px 0 0 12px;
-    background: #ff4444; /* Red for under target */
+    background: #e87373; /* Red for under target */
     transform-origin: right center;
 }
 
@@ -82,7 +82,7 @@ body {
     left: 50%;
     right: 0;
     border-radius: 0 12px 12px 0;
-    background: #44ff44; /* Green for over target */
+    background: #9ee09e; /* Green for over target */
     transform-origin: left center;
 }
 
@@ -90,12 +90,12 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
     font-size: 12px;
     font-weight: bold;
-    color: white;
+    color: black;
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     z-index: 20;
+    transform-origin: center center;
 }
 
 /* Status and settings */

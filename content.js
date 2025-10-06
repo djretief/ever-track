@@ -102,10 +102,9 @@ class EverTrackInjector {
             </div>
             <div class="evertrack-progress-bar">
                 <div class="evertrack-progress-fill" id="evertrack-progress-fill"></div>
-                <div class="evertrack-progress-text" id="evertrack-progress-text">--</div>
             </div>
-            <div class="evertrack-details" id="evertrack-details">
-                Calculating progress...
+            <div class="evertrack-progress-text" id="evertrack-progress-text">--</div>
+            <div class="evertrack-details" id="evertrack-details" style="display: none;">
             </div>
         `;
 
@@ -191,22 +190,52 @@ class EverTrackInjector {
             status = `${difference.toFixed(1)}h ahead of expected progress! 🚀`;
         }
 
-        // Update the display
-        statusEl.textContent = status;
-        statusEl.className = 'evertrack-status';
+        // Hide the status text at the top
+        statusEl.style.display = 'none';
         
         fillEl.style.width = `${fillWidth}%`;
         fillEl.style.backgroundColor = color;
         fillEl.style.opacity = '1';
         
-        // Display format matches popup: "worked hours / total target (progress%)"
-        const progressPercent = Math.round((progress || 0) * 100);
-        textEl.textContent = `${worked.toFixed(1)}h / ${fullTarget}h (${progressPercent}% through work period)`;
+        // Show fraction format below the bar: "worked / expected"
+        textEl.textContent = `${worked.toFixed(1)} / ${proRatedTarget.toFixed(1)} hours`;
         
-        // Update details to show pro-rated expected hours (like popup)
-        detailsEl.innerHTML = `
-            <small>${proRatedTarget.toFixed(1)}h expected | ${elapsedWorkHours.toFixed(1)}h / ${totalWorkHours.toFixed(1)}h work time</small>
-        `;
+        // Show difference amount centered on the progress bar
+        let progressText = '';
+        if (Math.abs(difference) >= 0.1) { // Only show if significant difference
+            if (difference > 0) {
+                progressText = `+${difference.toFixed(1)}h`;
+            } else {
+                progressText = `${difference.toFixed(1)}h`;
+            }
+        }
+        
+        // Update or create progress text overlay
+        let progressOverlay = document.getElementById('evertrack-progress-overlay');
+        if (!progressOverlay) {
+            progressOverlay = document.createElement('div');
+            progressOverlay.id = 'evertrack-progress-overlay';
+            progressOverlay.className = 'evertrack-progress-overlay';
+            fillEl.parentNode.appendChild(progressOverlay);
+        }
+        progressOverlay.textContent = progressText;
+        
+        // Position the overlay text on the center of the filled portion
+        if (progressText && fillWidth > 0) {
+            if (fillEl.classList.contains('under-target')) {
+                // For under-target, center on the left portion (0 to fillWidth%)
+                progressOverlay.style.left = `${fillWidth / 2}%`;
+            } else {
+                // For over-target, center on the right portion (50% to 50% + fillWidth%)
+                progressOverlay.style.left = `${50 + (fillWidth / 2)}%`;
+            }
+        } else {
+            // Hide overlay if no significant difference
+            progressOverlay.style.left = '50%';
+        }
+        
+        // Hide the details section since we're simplifying
+        detailsEl.style.display = 'none';
     }
 
     showError(message) {

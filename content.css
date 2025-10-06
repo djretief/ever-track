@@ -93,15 +93,26 @@
 /* Remove the animated stripes */
 
 .evertrack-progress-text {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: #495057;
+    margin-top: 8px;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    pointer-events: none;
+}
+
+.evertrack-progress-overlay {
     position: absolute;
     top: 50%;
-    left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 12px;
-    font-weight: 600;
-    color: #495057;
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
     pointer-events: none;
+    z-index: 3;
+    white-space: nowrap;
 }
 
 .evertrack-details {

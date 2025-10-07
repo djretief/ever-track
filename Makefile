@@ -1,6 +1,6 @@
 # Makefile for EverTrack Safari Extension
 
-.PHONY: dev build release clean help install test icons verify firefox firefox-install
+.PHONY: dev build release clean help install test icons verify firefox firefox-install chrome chrome-load
 
 # Default target
 help:
@@ -18,6 +18,11 @@ help:
 	@echo ""
 	@echo "Firefox Extension targets:"
 	@echo "  firefox         - Build Firefox extension (.xpi)"
+	@echo "  firefox-install - Build and install Firefox extension"
+	@echo ""
+	@echo "Chrome Extension targets:"
+	@echo "  chrome      - Build Chrome extension (.zip)"
+	@echo "  chrome-load - Build and open Chrome for loading extension"
 	@echo "  firefox-install - Build and install Firefox extension"
 	@echo ""
 	@echo "  help      - Show this help message"
@@ -48,6 +53,8 @@ clean:
 	./build.sh clean
 	@echo "🧹 Cleaning Firefox build artifacts..."
 	rm -rf $(HOME)/Development/EverTrack-Firefox
+	@echo "🧹 Cleaning Chrome build artifacts..."
+	rm -rf $(HOME)/Development/EverTrack-Chrome
 
 # Install/reinstall the extension
 install: build
@@ -105,9 +112,24 @@ clean-firefox:
 	@echo "🧹 Cleaning Firefox build artifacts..."
 	rm -rf $(HOME)/Development/EverTrack-Firefox
 
+# Chrome extension targets
+chrome:
+	@echo "🔵 Building Chrome extension..."
+	./build-chrome-extension.sh
+
+chrome-load:
+	@echo "🔵 Building and loading Chrome extension..."
+	./build-chrome-extension.sh --load
+
+# Clean Chrome build artifacts
+clean-chrome:
+	@echo "🧹 Cleaning Chrome build artifacts..."
+	rm -rf $(HOME)/Development/EverTrack-Chrome
+
 # Quick aliases
 d: dev
 f: firefox
+c: chrome
 b: build
 r: release
 c: clean

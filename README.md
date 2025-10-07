@@ -1,6 +1,6 @@
-# EverTrack - Browser Extension for Everhour Time Tracking
+# EverTrack - Cross-Browser Extension for Everhour Time Tracking
 
-A cross-browser extension for Safari and Firefox that provides visual progress tracking for your Everhour time against daily, weekly, and monthly targets.
+A cross-browser extension for Safari, Firefox, and Chrome that provides visual progress tracking for your Everhour time against daily, weekly, and monthly targets.
 
 ## Features
 
@@ -11,7 +11,7 @@ A cross-browser extension for Safari and Firefox that provides visual progress t
 - ⚙️ **Configurable Targets**: Customizable daily, weekly, and monthly hour targets
 - 🔐 **Secure API Integration**: Safe storage of your Everhour API token
 - 📱 **Clean Interface**: Simple popup that doesn't interfere with browsing
-- 🦊 **Cross-Browser Support**: Works on both Safari (macOS) and Firefox
+- 🌐 **Cross-Browser Support**: Works on Safari (macOS), Firefox (all OS), and Chrome (all OS)
 
 ### Smart Progress Calculation
 
@@ -23,6 +23,7 @@ EverTrack calculates progress based on your actual work schedule, not calendar t
 - Everhour account with API access
 - **For Safari**: macOS with Safari browser + Xcode
 - **For Firefox**: Firefox browser (any OS)
+- **For Chrome**: Chrome browser (any OS)
 
 ### Get Your Everhour API Token
 1. Log in to [Everhour](https://app.everhour.com/#/account/profile)
@@ -84,6 +85,51 @@ make firefox-install
    - **Development install**: Go to `about:debugging` → "This Firefox" → "Load Temporary Add-on" → Select `manifest.json`
 
 📦 **Extension Package**: Located at `~/Development/EverTrack-Firefox/EverTrack-v2.0.0.xpi`
+
+## Chrome Installation
+
+### Method 1: Using Make (Recommended)
+```bash
+# Build Chrome extension
+make chrome
+
+# Build and open Chrome for loading
+make chrome-load
+```
+
+### Method 2: Manual Build
+```bash
+# Build Chrome extension (.zip package)
+./build-chrome-extension.sh
+
+# Build and open Chrome extensions page
+./build-chrome-extension.sh --load
+```
+
+### Method 3: Development Install
+1. **Build the extension**:
+   ```bash
+   ./build-chrome-extension.sh
+   ```
+
+2. **Install in Chrome**:
+   - **Production**: Upload the `.zip` file to Chrome Web Store Developer Dashboard
+   - **Development**: Go to `chrome://extensions/` → Enable "Developer mode" → "Load unpacked" → Select the `clean-extension` directory
+
+📦 **Extension Package**: Located at `~/Development/EverTrack-Chrome/EverTrack-Chrome-v2.0.0.zip`
+
+## Quick Build All Browsers
+
+```bash
+# Build for all browsers
+make build    # Safari
+make firefox  # Firefox  
+make chrome   # Chrome
+
+# Quick aliases
+make f        # Firefox
+make c        # Chrome
+```
 
 4. **Enable in Safari**:
    - Safari > Settings > Extensions

@@ -150,22 +150,20 @@ class EverTrackContentScript {
             <div class="evertrack-widget-content">
                 <div class="loading">Loading...</div>
                 <div class="error hidden"></div>
-                <div class="hidden">
-                    <div class="mode-label"></div>
-                    <div class="progress-container">
-                        <div class="progress-label">
-                            <span class="worked-hours">0h</span>
-                            <span class="target-hours">0h target</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-center"></div>
-                            <div class="progress-fill">
-                                <div class="progress-text">0%</div>
-                            </div>
+                <div class="mode-label"></div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span class="worked-hours">0h</span>
+                        <span class="target-hours">0h target</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-center"></div>
+                        <div class="progress-fill">
+                            <div class="progress-text">0%</div>
                         </div>
                     </div>
-                    <div class="status-info"></div>
                 </div>
+                <div class="status-info"></div>
             </div>
         `;
 

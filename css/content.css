@@ -141,9 +141,9 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    font-size: 10px;
+    font-size: 13px;
     font-weight: bold;
-    color: var(--color-text-primary);
+    color: black;
     z-index: 20;
     transform-origin: center center;
 }
@@ -152,7 +152,7 @@
 .evertrack-widget .status-info {
     text-align: center;
     margin-top: 8px;
-    font-size: 11px;
+    font-size: 14px;
     color: var(--color-text-primary);
 }
 

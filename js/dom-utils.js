@@ -122,8 +122,10 @@ const EverTrackDOM = {
             this.addClass(progressFill, progress.className);
             
             // Apply transform
-            progressFill.style.transform = `scaleX(${progress.scale})`;
-            
+            // Instead of using scaleX, directly set the width as a percentage
+            progressFill.style.transform = '';
+            progressFill.style.width = `${Math.min(progress.scale * 100, 100)}%`;
+
             console.log(`EverTrack DOM: Updated progress bar - scale: ${progress.scale}, class: ${progress.className}`);
         }
 
@@ -135,7 +137,7 @@ const EverTrackDOM = {
             
             // Counteract the parent's scaleX transform to maintain text size while keeping it centered
             if (progress.scale > 0) {
-                progressText.style.transform = `translate(-50%, -50%) scaleX(${1 / progress.scale})`;
+                progressText.style.transform = `translate(-50%, -50%)`;// scaleX(${1 / progress.scale})`;
             }
         }
     },

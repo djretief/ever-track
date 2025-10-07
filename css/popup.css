@@ -71,7 +71,6 @@ body {
 }
 
 .progress-fill.under-target {
-    left: 0;
     right: 50%;
     border-radius: 12px 0 0 12px;
     background: #e87373; /* Red for under target */

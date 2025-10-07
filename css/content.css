@@ -119,22 +119,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 0%; /* Will be set by JavaScript */
 }
 
 .evertrack-widget .progress-fill.under-target {
-    left: 0;
-    right: 50%;
+    right: 50%; /* Start from center */
     border-radius: 10px 0 0 10px;
     background: #e87373;
-    transform-origin: right center;
 }
 
 .evertrack-widget .progress-fill.over-target {
-    left: 50%;
-    right: 0;
+    left: 50%; /* Start from center */
     border-radius: 0 10px 10px 0;
     background: #9ee09e;
-    transform-origin: left center;
 }
 
 .evertrack-widget .progress-text {

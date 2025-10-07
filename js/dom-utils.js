@@ -121,24 +121,25 @@ const EverTrackDOM = {
             // Add appropriate class
             this.addClass(progressFill, progress.className);
             
-            // Apply transform
-            // Instead of using scaleX, directly set the width as a percentage
+            // Set width based on fillWidth (which is 0-50% range)
+            // Convert to actual percentage for the half of the bar
+            const widthPercent = (progress.fillWidth / 50) * 50; // Convert fillWidth to 0-50% range
+            progressFill.style.width = `${widthPercent}%`;
+            
+            // Clear any transform
             progressFill.style.transform = '';
-            progressFill.style.width = `${Math.min(progress.scale * 100, 100)}%`;
-
-            console.log(`EverTrack DOM: Updated progress bar - scale: ${progress.scale}, class: ${progress.className}`);
+            
+            console.log(`EverTrack DOM: Updated progress bar - fillWidth: ${progress.fillWidth}%, actual width: ${widthPercent}%, class: ${progress.className}`);
         }
 
         // Update progress text
         if (progressText) {
-            let progressTextInput = `${Math.round(progress.difference)}h`;
-            if (progress.difference >= 0) progressTextInput = `+${Math.round(progress.difference)}h`;
+            let progressTextInput = `${Math.round(progress.difference * 10) / 10}h`;
+            if (progress.difference >= 0) progressTextInput = `+${Math.round(progress.difference * 10) / 10}h`;
             this.setText(progressText, progressTextInput);
             
-            // Counteract the parent's scaleX transform to maintain text size while keeping it centered
-            if (progress.scale > 0) {
-                progressText.style.transform = `translate(-50%, -50%)`;// scaleX(${1 / progress.scale})`;
-            }
+            // Simple centered positioning without scale compensation
+            progressText.style.transform = `translate(-50%, -50%)`;
         }
     },
 

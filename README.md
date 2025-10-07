@@ -1,6 +1,6 @@
-# EverTrack - Safari Extension for Everhour Time Tracking
+# EverTrack - Browser Extension for Everhour Time Tracking
 
-A Safari browser extension that provides visual progress tracking for your Everhour time against daily, weekly, and monthly targets.
+A cross-browser extension for Safari and Firefox that provides visual progress tracking for your Everhour time against daily, weekly, and monthly targets.
 
 ## Features
 
@@ -11,6 +11,7 @@ A Safari browser extension that provides visual progress tracking for your Everh
 - ⚙️ **Configurable Targets**: Customizable daily, weekly, and monthly hour targets
 - 🔐 **Secure API Integration**: Safe storage of your Everhour API token
 - 📱 **Clean Interface**: Simple popup that doesn't interfere with browsing
+- 🦊 **Cross-Browser Support**: Works on both Safari (macOS) and Firefox
 
 ### Smart Progress Calculation
 
@@ -19,16 +20,16 @@ EverTrack calculates progress based on your actual work schedule, not calendar t
 ## Installation
 
 ### Prerequisites
-- macOS with Safari browser
 - Everhour account with API access
-- Xcode (for building the extension)
+- **For Safari**: macOS with Safari browser + Xcode
+- **For Firefox**: Firefox browser (any OS)
 
 ### Get Your Everhour API Token
 1. Log in to [Everhour](https://app.everhour.com/#/account/profile)
 2. Go to Account Settings → Profile
 3. Copy your API token
 
-### Build and Install
+## Safari Installation
 
 1. **Enable Safari Development Features**:
    - Safari > Settings > Advanced → Check "Show Develop menu"
@@ -42,12 +43,47 @@ EverTrack calculates progress based on your actual work schedule, not calendar t
    
    # Or full release build
    ./build.sh release
+   
+   # Using Makefile
+   make build
    ```
 
 3. **Run in Xcode**:
    - Select "EverTrack (macOS)" scheme
    - Click Build and Run (⌘+R)
    - Keep the app running (extension only works while app is active)
+
+## Firefox Installation
+
+### Method 1: Using Make (Recommended)
+```bash
+# Build Firefox extension
+make firefox
+
+# Build and install in Firefox
+make firefox-install
+```
+
+### Method 2: Manual Build
+```bash
+# Build Firefox extension (.xpi package)
+./build-firefox-extension.sh
+
+# Build and automatically open in Firefox
+./build-firefox-extension.sh --install
+```
+
+### Method 3: Development Install
+1. **Build the extension**:
+   ```bash
+   ./build-firefox-extension.sh
+   ```
+
+2. **Install in Firefox**:
+   - **Production install**: Go to `about:addons` → ⚙️ → "Install Add-on From File" → Select the `.xpi` file
+   - **Development install**: Go to `about:debugging` → "This Firefox" → "Load Temporary Add-on" → Select `manifest.json`
+
+📦 **Extension Package**: Located at `~/Development/EverTrack-Firefox/EverTrack-v2.0.0.xpi`
 
 4. **Enable in Safari**:
    - Safari > Settings > Extensions

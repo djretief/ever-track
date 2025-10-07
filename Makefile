@@ -1,12 +1,12 @@
 # Makefile for EverTrack Safari Extension
 
-.PHONY: dev build release clean help install test icons verify
+.PHONY: dev build release clean help install test icons verify firefox firefox-install
 
 # Default target
 help:
-	@echo "EverTrack Safari Extension Build System"
+	@echo "EverTrack Extension Build System"
 	@echo ""
-	@echo "Available targets:"
+	@echo "Safari Extension targets:"
 	@echo "  dev       - Quick development build (package + open Xcode)"
 	@echo "  build     - Build extension package and Xcode project"
 	@echo "  release   - Full release build (package + build + open Xcode)"
@@ -15,6 +15,11 @@ help:
 	@echo "  test      - Run a basic validation test"
 	@echo "  icons     - Generate icon files"
 	@echo "  verify    - Verify Xcode project is ready to build"
+	@echo ""
+	@echo "Firefox Extension targets:"
+	@echo "  firefox         - Build Firefox extension (.xpi)"
+	@echo "  firefox-install - Build and install Firefox extension"
+	@echo ""
 	@echo "  help      - Show this help message"
 	@echo ""
 	@echo "Examples:"
@@ -41,6 +46,8 @@ release:
 clean:
 	@echo "🧹 Cleaning build artifacts..."
 	./build.sh clean
+	@echo "🧹 Cleaning Firefox build artifacts..."
+	rm -rf $(HOME)/Development/EverTrack-Firefox
 
 # Install/reinstall the extension
 install: build
@@ -84,8 +91,23 @@ icons:
 		exit 1; \
 	fi
 
+# Firefox Extension targets
+firefox:
+	@echo "🦊 Building Firefox extension..."
+	./build-firefox-extension.sh
+
+firefox-install:
+	@echo "🦊 Building and installing Firefox extension..."
+	./build-firefox-extension.sh --install
+
+# Clean Firefox build artifacts
+clean-firefox:
+	@echo "🧹 Cleaning Firefox build artifacts..."
+	rm -rf $(HOME)/Development/EverTrack-Firefox
+
 # Quick aliases
 d: dev
+f: firefox
 b: build
 r: release
 c: clean

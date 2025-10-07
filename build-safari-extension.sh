@@ -6,10 +6,10 @@
 set -e  # Exit on any error
 
 # Configuration
-EXTENSION_DIR="$HOME/Development/ever-track"
+EXTENSION_DIR="$(pwd)"
 OUTPUT_DIR="$HOME/Development/EverTrack-Safari"
 APP_NAME="EverTrack"
-BUNDLE_ID="com.evertrack.safari-extension"
+BUNDLE_ID="com.evertrack.EverTrack"
 
 # Colors for output
 RED='\033[0;31m'
@@ -174,6 +174,35 @@ fix_xcode_project() {
     print_success "Xcode project issues fixed"
 }
 
+# Function to create clean extension directory
+create_clean_extension() {
+    print_status "Creating clean extension directory..."
+    
+    # Create temporary clean directory
+    CLEAN_EXTENSION_DIR="$OUTPUT_DIR/clean-extension"
+    rm -rf "$CLEAN_EXTENSION_DIR"
+    mkdir -p "$CLEAN_EXTENSION_DIR"
+    
+    # Copy only necessary files for Safari extension
+    cp "$EXTENSION_DIR/manifest.json" "$CLEAN_EXTENSION_DIR/"
+    cp "$EXTENSION_DIR/background.js" "$CLEAN_EXTENSION_DIR/"
+    cp "$EXTENSION_DIR/popup.html" "$CLEAN_EXTENSION_DIR/"
+    cp "$EXTENSION_DIR/settings.html" "$CLEAN_EXTENSION_DIR/"
+    
+    # Copy JS directory
+    cp -r "$EXTENSION_DIR/js" "$CLEAN_EXTENSION_DIR/"
+    
+    # Copy CSS directory  
+    cp -r "$EXTENSION_DIR/css" "$CLEAN_EXTENSION_DIR/"
+    
+    # Copy icons directory
+    if [ -d "$EXTENSION_DIR/icons" ]; then
+        cp -r "$EXTENSION_DIR/icons" "$CLEAN_EXTENSION_DIR/"
+    fi
+    
+    print_success "Clean extension directory created"
+}
+
 # Function to create the Safari extension package
 create_safari_package() {
     print_status "Creating Safari extension package..."
@@ -184,25 +213,33 @@ create_safari_package() {
         rm -rf "$OUTPUT_DIR"
     fi
     
+    # Create clean extension directory
+    create_clean_extension
+    
     # Create the Safari extension using xcrun
     print_status "Running safari-web-extension-packager..."
     
     xcrun safari-web-extension-packager \
-        "$EXTENSION_DIR" \
+        "$CLEAN_EXTENSION_DIR" \
         --project-location "$OUTPUT_DIR" \
         --app-name "$APP_NAME" \
         --bundle-identifier "$BUNDLE_ID" \
         --swift \
         --copy-resources \
         --no-prompt \
-        --force
+        --force \
+        --macos-only
     
     if [ $? -eq 0 ]; then
         print_success "Safari extension package created successfully"
+        # Clean up temporary directory
+        rm -rf "$CLEAN_EXTENSION_DIR"
         # Fix any Xcode project issues
         fix_xcode_project
     else
         print_error "Failed to create Safari extension package"
+        # Clean up temporary directory on failure too
+        rm -rf "$CLEAN_EXTENSION_DIR"
         exit 1
     fi
 }

@@ -21,21 +21,30 @@ const EverTrackTime = {
     formatHours(hours, showMinutes = false) {
         if (hours === 0) return '0h';
         
-        const wholeHours = Math.floor(Math.abs(hours));
-        const minutes = Math.round((Math.abs(hours) - wholeHours) * 60);
+        // Round to nearest 0.1 hour for cleaner display
+        const roundedHours = Math.round(hours * 10) / 10;
         
-        let result = '';
-        if (hours < 0) result += '-';
-        
-        if (wholeHours > 0) {
-            result += `${wholeHours}h`;
+        if (showMinutes) {
+            const wholeHours = Math.floor(Math.abs(roundedHours));
+            const minutes = Math.round((Math.abs(roundedHours) - wholeHours) * 60);
+            
+            let result = '';
+            if (roundedHours < 0) result += '-';
+            
+            if (wholeHours > 0) {
+                result += `${wholeHours}h`;
+            }
+            
+            if (minutes > 0) {
+                result += ` ${minutes}m`;
+            }
+            
+            return result || '0h';
+        } else {
+            // Show as decimal hours (e.g., "7.5h")
+            const prefix = roundedHours < 0 ? '-' : '';
+            return `${prefix}${Math.abs(roundedHours)}h`;
         }
-        
-        if (showMinutes && minutes > 0) {
-            result += ` ${minutes}m`;
-        }
-        
-        return result || '0h';
     },
 
     /**

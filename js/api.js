@@ -100,30 +100,44 @@ const EverTrackAPI = {
 
     /**
      * Get date range for tracking mode
-     * @param {string} trackingMode - 'daily', 'weekly', or 'monthly'
-     * @returns {Object} - { from: Date, to: Date }
+     * @param {string} mode - Tracking mode ('daily', 'weekly', 'monthly')
+     * @returns {Object} - Date range with from and to dates
      */
-    getDateRange(trackingMode) {
+    getDateRange(mode) {
         const today = new Date();
         let from, to;
-
-        switch (trackingMode) {
+        
+        switch (mode) {
             case 'daily':
-                from = to = new Date(today);
+                from = new Date(today);
+                from.setHours(0, 0, 0, 0);
+                to = new Date(today);
+                to.setHours(23, 59, 59, 999);
                 break;
+                
             case 'weekly':
                 from = new Date(today);
-                from.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+                // Change from Sunday-based to Monday-based week
+                const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // If Sunday, go back 6 days, else go back (day - 1) days
+                from.setDate(today.getDate() - daysFromMonday);
+                from.setHours(0, 0, 0, 0);
+                
                 to = new Date(today);
+                to.setHours(23, 59, 59, 999);
                 break;
+                
             case 'monthly':
-                from = new Date(today.getFullYear(), today.getMonth(), 1); // Start of month
+                from = new Date(today.getFullYear(), today.getMonth(), 1);
+                from.setHours(0, 0, 0, 0);
                 to = new Date(today);
+                to.setHours(23, 59, 59, 999);
                 break;
+                
             default:
-                throw new Error(`Unknown tracking mode: ${trackingMode}`);
+                from = to = today;
         }
-
+        
         return { from, to };
     },
 

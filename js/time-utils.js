@@ -56,7 +56,7 @@ const EverTrackTime = {
      * @returns {Object} - Progress calculation result
      */
     calculateProgress(workedHours, targetHours, trackingMode, workSchedule) {
-        const expectedHours = this.calculateExpectedHours(trackingMode, workSchedule);
+        const expectedHours = this.calculateExpectedHours(trackingMode, workSchedule, targetHours);
         const difference = workedHours - expectedHours;
         const progressPercentage = expectedHours > 0 ? (workedHours / expectedHours) * 100 : 0;
         
@@ -73,6 +73,7 @@ const EverTrackTime = {
         return {
             workedHours,
             targetHours,
+            expectedHours,
             difference,
             progressPercentage,
             fillWidth,
@@ -82,6 +83,7 @@ const EverTrackTime = {
             formattedWorked: this.formatHours(workedHours, true),
             formattedTarget: this.formatHours(targetHours),
             formattedDifference: this.formatHours(difference, true),
+            formattedExpected: this.formatHours(expectedHours, true),
             status: this.getStatus(difference, targetHours)
         };
     },
@@ -132,36 +134,226 @@ const EverTrackTime = {
     },
 
     /**
-     * Calculate expected hours based on work schedule
+     * Calculate expected hours based on work schedule progress
      * @param {string} trackingMode - 'daily', 'weekly', or 'monthly'
      * @param {Object} workSchedule - Work schedule configuration
-     * @returns {number} - Expected hours
+     * @param {number} targetHours - Total target hours for the period
+     * @returns {number} - Expected hours based on progress through period
      */
-    calculateExpectedHours(trackingMode, workSchedule) {
-        const today = new Date();
+    calculateExpectedHours(trackingMode, workSchedule, targetHours = 0) {
+        const now = new Date();
         
         switch (trackingMode) {
             case 'daily':
-                const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][today.getDay()];
-                const daySchedule = workSchedule[dayName];
-                if (!daySchedule || !daySchedule.enabled) return 0;
-                
-                const start = this.parseTime(daySchedule.start);
-                const end = this.parseTime(daySchedule.end);
-                return (end - start) / (1000 * 60 * 60); // Convert to hours
+                return this.calculateDailyExpectedHours(now, workSchedule, targetHours);
                 
             case 'weekly':
-                const weekStart = new Date(today);
-                weekStart.setDate(today.getDate() - today.getDay());
-                return this.calculateWorkingDays(weekStart, today, workSchedule) * 8; // Assuming 8h per day
+                return this.calculateWeeklyExpectedHours(now, workSchedule, targetHours);
                 
             case 'monthly':
-                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-                return this.calculateWorkingDays(monthStart, today, workSchedule) * 8; // Assuming 8h per day
+                return this.calculateMonthlyExpectedHours(now, workSchedule, targetHours);
                 
             default:
                 return 0;
         }
+    },
+
+    /**
+     * Calculate expected hours for daily tracking
+     * @param {Date} now - Current date/time
+     * @param {Object} workSchedule - Work schedule configuration
+     * @param {number} targetHours - Daily target hours
+     * @returns {number} - Expected hours based on progress through workday
+     */
+    calculateDailyExpectedHours(now, workSchedule, targetHours) {
+        console.log('EverTrack Time: Daily calculation - now:', now.toString(), 'targetHours:', targetHours);
+    
+        const dayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
+        const daySchedule = workSchedule[dayName];
+    
+        console.log('EverTrack Time: Day schedule for', dayName, ':', daySchedule);
+    
+        // If today is not a work day, expected hours is 0
+        if (!daySchedule || !daySchedule.enabled) {
+            console.log('EverTrack Time: Not a work day, returning 0');
+            return 0;
+        }
+    
+        const startTime = this.parseTime(daySchedule.start);
+        const endTime = this.parseTime(daySchedule.end);
+    
+        console.log('EverTrack Time: Work hours -', startTime.toString(), 'to', endTime.toString());
+        console.log('EverTrack Time: Current time vs work start:', now >= startTime, 'vs work end:', now >= endTime);
+    
+        // If current time is before work start, expected hours is 0
+        if (now < startTime) {
+            console.log('EverTrack Time: Before work starts, returning 0');
+            return 0;
+        }
+    
+        // If current time is after work end, expected hours is full target
+        if (now >= endTime) {
+            console.log('EverTrack Time: After work ends, returning full target:', targetHours);
+            return targetHours;
+        }
+    
+        // Calculate fraction of workday completed
+        const totalWorkTime = endTime - startTime;
+        const elapsedWorkTime = now - startTime;
+        const fractionComplete = elapsedWorkTime / totalWorkTime;
+    
+        const expectedHours = targetHours * fractionComplete;
+    
+        console.log('EverTrack Time: Work progress - fraction:', fractionComplete, 'expected hours:', expectedHours);
+    
+        return expectedHours;
+    },
+
+    /**
+     * Calculate expected hours for weekly tracking
+     * @param {Date} now - Current date/time
+     * @param {Object} workSchedule - Work schedule configuration
+     * @param {number} targetHours - Weekly target hours
+     * @returns {number} - Expected hours based on progress through work week
+     */
+    calculateWeeklyExpectedHours(now, workSchedule, targetHours) {
+        const weekStart = new Date(now);
+        // Change from Sunday-based to Monday-based week
+        const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // If Sunday, go back 6 days, else go back (day - 1) days
+        weekStart.setDate(now.getDate() - daysFromMonday);
+        weekStart.setHours(0, 0, 0, 0);
+        
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999);
+        
+        // Calculate total work hours in the week
+        const totalWorkHours = this.calculateTotalWorkHoursInPeriod(weekStart, weekEnd, workSchedule);
+        
+        // Calculate work hours that should be completed by now
+        const completedWorkHours = this.calculateCompletedWorkHours(weekStart, now, workSchedule);
+        
+        if (totalWorkHours === 0) return 0;
+        
+        // Calculate fraction of work week completed
+        const fractionComplete = completedWorkHours / totalWorkHours;
+        
+        return targetHours * fractionComplete;
+    },
+
+    /**
+     * Calculate expected hours for monthly tracking
+     * @param {Date} now - Current date/time
+     * @param {Object} workSchedule - Work schedule configuration
+     * @param {number} targetHours - Monthly target hours
+     * @returns {number} - Expected hours based on progress through work month
+     */
+    calculateMonthlyExpectedHours(now, workSchedule, targetHours) {
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        monthStart.setHours(0, 0, 0, 0);
+        
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        monthEnd.setHours(23, 59, 59, 999);
+        
+        // Calculate total work hours in the month
+        const totalWorkHours = this.calculateTotalWorkHoursInPeriod(monthStart, monthEnd, workSchedule);
+        
+        // Calculate work hours that should be completed by now
+        const completedWorkHours = this.calculateCompletedWorkHours(monthStart, now, workSchedule);
+        
+        if (totalWorkHours === 0) return 0;
+        
+        // Calculate fraction of work month completed
+        const fractionComplete = completedWorkHours / totalWorkHours;
+        
+        return targetHours * fractionComplete;
+    },
+
+    /**
+     * Calculate total work hours in a given period
+     * @param {Date} startDate - Period start date
+     * @param {Date} endDate - Period end date
+     * @param {Object} workSchedule - Work schedule configuration
+     * @returns {number} - Total work hours in the period
+     */
+    calculateTotalWorkHoursInPeriod(startDate, endDate, workSchedule) {
+        const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        let totalHours = 0;
+        
+        const currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+            const dayName = dayNames[currentDate.getDay()];
+            const daySchedule = workSchedule[dayName];
+            
+            if (daySchedule && daySchedule.enabled) {
+                const startTime = this.parseTime(daySchedule.start);
+                const endTime = this.parseTime(daySchedule.end);
+                const dayHours = (endTime - startTime) / (1000 * 60 * 60);
+                totalHours += dayHours;
+            }
+            
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        
+        return totalHours;
+    },
+
+    /**
+     * Calculate work hours that should be completed by a given time
+     * @param {Date} startDate - Period start date
+     * @param {Date} currentTime - Current date/time
+     * @param {Object} workSchedule - Work schedule configuration
+     * @returns {number} - Work hours that should be completed
+     */
+    calculateCompletedWorkHours(startDate, currentTime, workSchedule) {
+        const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        let completedHours = 0;
+        
+        const currentDate = new Date(startDate);
+        while (currentDate < currentTime) {
+            const dayName = dayNames[currentDate.getDay()];
+            const daySchedule = workSchedule[dayName];
+            
+            if (daySchedule && daySchedule.enabled) {
+                const workDay = new Date(currentDate);
+                const startTime = this.parseTime(daySchedule.start);
+                const endTime = this.parseTime(daySchedule.end);
+                
+                // Set the work start and end times for this specific day
+                const dayStart = new Date(workDay);
+                dayStart.setHours(startTime.getHours(), startTime.getMinutes(), 0, 0);
+                
+                const dayEnd = new Date(workDay);
+                dayEnd.setHours(endTime.getHours(), endTime.getMinutes(), 0, 0);
+                
+                // Check if this is today and we're in the middle of a work day
+                if (currentDate.toDateString() === currentTime.toDateString()) {
+                    // This is today - calculate partial day progress
+                    if (currentTime < dayStart) {
+                        // Before work starts today - no hours from today
+                        break;
+                    } else if (currentTime >= dayEnd) {
+                        // After work ends today - full day
+                        const dayHours = (dayEnd - dayStart) / (1000 * 60 * 60);
+                        completedHours += dayHours;
+                    } else {
+                        // During work hours today - partial day
+                        const elapsedHours = (currentTime - dayStart) / (1000 * 60 * 60);
+                        completedHours += elapsedHours;
+                    }
+                    break;
+                } else {
+                    // This is a previous day - add full day hours
+                    const dayHours = (dayEnd - dayStart) / (1000 * 60 * 60);
+                    completedHours += dayHours;
+                }
+            }
+            
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        
+        return completedHours;
     },
 
     /**
@@ -190,7 +382,11 @@ const EverTrackTime = {
                 
             case 'weekly':
                 const weekStart = new Date(today);
-                weekStart.setDate(today.getDate() - today.getDay());
+                // Change from Sunday-based to Monday-based week
+                const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // If Sunday, go back 6 days, else go back (day - 1) days
+                weekStart.setDate(today.getDate() - daysFromMonday);
+                
                 const weekEnd = new Date(weekStart);
                 weekEnd.setDate(weekStart.getDate() + 6);
                 return `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;

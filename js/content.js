@@ -269,7 +269,7 @@ class EverTrackContentScript {
 
             // Update mode label with period description
             const periodDescription = EverTrackTime.getPeriodDescription(this.settings.trackingMode);
-            EverTrackDOM.setText(elements.modeLabel, `${this.settings.trackingMode} (${periodDescription})`);
+            EverTrackDOM.setText(elements.modeLabel, `${this.settings.trackingMode} (${periodDescription}) target ${targetHours}h`);
 
             console.log('EverTrack Content Script: Widget updated successfully');
 

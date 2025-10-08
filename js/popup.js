@@ -138,7 +138,7 @@ class EverTrackPopup {
 
         // Update mode label with period description
         const periodDescription = EverTrackTime.getPeriodDescription(this.settings.trackingMode);
-        EverTrackDOM.setText(this.elements.modeLabel, `${this.settings.trackingMode} (${periodDescription})`);
+        EverTrackDOM.setText(this.elements.modeLabel, `${this.settings.trackingMode} (${periodDescription}) target ${targetHours}h`);
     }
 
     /**

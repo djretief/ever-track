@@ -106,12 +106,8 @@ const EverTrackDOM = {
 
         // Update text elements
         this.setText(workedHours, progress.formattedWorked);
-        this.setText(targetHours, `${progress.formattedTarget} target`);
+        this.setText(targetHours, progress.formattedExpected);
         this.setText(statusInfo, progress.status);
-
-        if (modeLabel) {
-            this.setText(modeLabel, `${elements.trackingMode} Progress`);
-        }
 
         // Update progress bar
         if (progressFill) {

@@ -125,8 +125,14 @@ create_clean_chrome_extension() {
         exit 1
     fi
     
-    # Copy core extension files
-    cp "$EXTENSION_DIR/background.js" "$CLEAN_EXTENSION_DIR/"
+    # Copy Chrome-specific background script
+    if [ -f "$EXTENSION_DIR/background-chrome.js" ]; then
+        cp "$EXTENSION_DIR/background-chrome.js" "$CLEAN_EXTENSION_DIR/background.js"
+    else
+        # Fallback to regular background script
+        cp "$EXTENSION_DIR/background.js" "$CLEAN_EXTENSION_DIR/"
+    fi
+    
     cp "$EXTENSION_DIR/popup.html" "$CLEAN_EXTENSION_DIR/"
     cp "$EXTENSION_DIR/settings.html" "$CLEAN_EXTENSION_DIR/"
     

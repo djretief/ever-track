@@ -1,12 +1,15 @@
 /**
  * Browser Compatibility Layer
- * Provides cross-browser compatibility for Chrome and Firefox WebExtension APIs
+ * Provides cross-browser compatibility for Chrome (MV3), Firefox, and Safari WebExtension APIs
  */
 
-// Create a unified browser API object that works in both Chrome and Firefox
+// Create a unified browser API object that works across all browsers
 const browserAPI = (() => {
-    // Firefox uses 'browser' namespace, Chrome uses 'chrome'
+    // Firefox uses 'browser' namespace, Chrome/Safari use 'chrome'
     const api = (typeof browser !== 'undefined') ? browser : chrome;
+    
+    // Detect if we're in Manifest V3 (Chrome) or V2 (Firefox/Safari)
+    const isManifestV3 = !!(api.action);
     
     return {
         // Runtime APIs
@@ -18,15 +21,18 @@ const browserAPI = (() => {
             lastError: api.runtime.lastError
         },
         
-        // Storage APIs
+        // Storage APIs - handle both callback and promise patterns
         storage: {
             sync: {
                 get: (keys, callback) => {
                     if (typeof browser !== 'undefined') {
                         // Firefox uses promises
                         api.storage.sync.get(keys).then(callback);
+                    } else if (isManifestV3) {
+                        // Chrome MV3 uses promises
+                        api.storage.sync.get(keys).then(callback);
                     } else {
-                        // Chrome uses callbacks
+                        // Chrome MV2/Safari uses callbacks
                         api.storage.sync.get(keys, callback);
                     }
                 },
@@ -34,8 +40,11 @@ const browserAPI = (() => {
                     if (typeof browser !== 'undefined') {
                         // Firefox uses promises
                         api.storage.sync.set(items).then(callback || (() => {}));
+                    } else if (isManifestV3) {
+                        // Chrome MV3 uses promises
+                        api.storage.sync.set(items).then(callback || (() => {}));
                     } else {
-                        // Chrome uses callbacks
+                        // Chrome MV2/Safari uses callbacks
                         api.storage.sync.set(items, callback);
                     }
                 }
@@ -43,22 +52,16 @@ const browserAPI = (() => {
             onChanged: api.storage.onChanged
         },
         
-        // Browser Action APIs
+        // Browser Action APIs - handle MV3 'action' vs MV2 'browserAction'
         browserAction: {
-            onClicked: api.browserAction.onClicked,
+            onClicked: isManifestV3 ? api.action?.onClicked : api.browserAction?.onClicked,
             setBadgeText: (details) => {
-                if (typeof browser !== 'undefined') {
-                    return api.browserAction.setBadgeText(details);
-                } else {
-                    return api.browserAction.setBadgeText(details);
-                }
+                const actionAPI = isManifestV3 ? api.action : api.browserAction;
+                return actionAPI?.setBadgeText(details);
             },
             setBadgeBackgroundColor: (details) => {
-                if (typeof browser !== 'undefined') {
-                    return api.browserAction.setBadgeBackgroundColor(details);
-                } else {
-                    return api.browserAction.setBadgeBackgroundColor(details);
-                }
+                const actionAPI = isManifestV3 ? api.action : api.browserAction;
+                return actionAPI?.setBadgeBackgroundColor(details);
             }
         }
     };

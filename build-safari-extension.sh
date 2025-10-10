@@ -11,6 +11,18 @@ OUTPUT_DIR="$(pwd)/../EverTrack-Safari"
 APP_NAME="EverTrack"
 BUNDLE_ID="com.evertrack.EverTrack"
 
+# Read version from version.json
+read_version() {
+    if [ -f "version.json" ]; then
+        VERSION=$(grep '"version"' version.json | sed 's/.*: *"\([^"]*\)".*/\1/')
+        APP_NAME_FROM_JSON=$(grep '"name"' version.json | sed 's/.*: *"\([^"]*\)".*/\1/')
+        # Use the version from JSON but keep the hardcoded APP_NAME for Safari
+    else
+        VERSION="0.1.0"
+        echo "[WARNING] version.json not found, using default version: $VERSION"
+    fi
+}
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -316,6 +328,9 @@ main() {
     echo "=========================================="
     echo "EverTrack Safari Extension Builder"
     echo "=========================================="
+    
+    read_version
+    echo "[INFO] Building $APP_NAME v$VERSION"
     
     # Parse command line arguments
     OPEN_XCODE=false

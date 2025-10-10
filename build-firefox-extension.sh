@@ -9,7 +9,18 @@ set -e  # Exit on any error
 EXTENSION_DIR="$(pwd)"
 OUTPUT_DIR="$(pwd)/../EverTrack-Firefox"
 EXTENSION_NAME="EverTrack"
-VERSION="2.0.0"
+
+# Read version from version.json
+read_version() {
+    if [ -f "version.json" ]; then
+        VERSION=$(grep '"version"' version.json | sed 's/.*: *"\([^"]*\)".*/\1/')
+        APP_NAME=$(grep '"name"' version.json | sed 's/.*: *"\([^"]*\)".*/\1/')
+    else
+        VERSION="0.1.0"
+        APP_NAME="EverTrack"
+        echo "[WARNING] version.json not found, using defaults: $APP_NAME v$VERSION"
+    fi
+}
 
 # Colors for output
 RED='\033[0;31m'
@@ -214,6 +225,9 @@ main() {
     echo "=========================================="
     echo "EverTrack Firefox Extension Builder"
     echo "=========================================="
+    
+    read_version
+    echo "[INFO] Building $APP_NAME v$VERSION for Firefox"
     
     # Parse command line arguments
     INSTALL_EXTENSION=false

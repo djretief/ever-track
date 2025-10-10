@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2025-10-11
+
+### Fixed
+- **Build system improvements**: All build scripts now read version from centralized `version.json`
+- **Version consistency**: Fixed hardcoded version numbers (2.0.0) in Firefox and Chrome build scripts  
+- **Centralized version management**: Build scripts automatically use correct version from `version.json`
+- **Package naming**: Generated packages now correctly use current version in filenames
+
+### Technical
+- Updated `build-firefox-extension.sh` to use `read_version()` function
+- Updated `build-chrome-extension.sh` to use `read_version()` function  
+- Updated `build-safari-extension.sh` to use `read_version()` function
+- Enhanced build scripts with proper version detection and fallbacks
+
 ## [0.1.0] - 2025-10-11
 
 ### Added

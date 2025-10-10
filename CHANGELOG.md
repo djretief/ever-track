@@ -5,7 +5,9 @@ All notable changes to EverTrack will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.1] - 2025-10-11
+
+Release version to correspond with version number on Chrome Web Store so all releases can be on the same version.
 
 ## [0.1.1] - 2025-10-11
 

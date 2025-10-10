@@ -15,9 +15,6 @@
 - [x] Customize the Project
 	Implemented Everhour API integration and time tracking visualization
 
-- [ ] Install Required Extensions
-	<!-- No specific extensions required -->
-
 - [x] Compile the Project
 	Successfully packaged Safari extension using xcrun safari-web-extension-packager
 

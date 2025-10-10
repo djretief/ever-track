@@ -2,8 +2,8 @@
 
 # Quick verification script to check if the Xcode project is ready to build
 
-XCODE_PROJECT="/Users/danielretief/Development/EverTrack-Safari/EverTrack/EverTrack.xcodeproj"
-REQUIRED_ICON="/Users/danielretief/Development/EverTrack-Safari/EverTrack/Shared (App)/Resources/Icon.png"
+XCODE_PROJECT="$(pwd)/../EverTrack-Safari/EverTrack/EverTrack.xcodeproj"
+REQUIRED_ICON="$(pwd)/../EverTrack-Safari/EverTrack/Shared (App)/Resources/Icon.png"
 
 echo "🔍 Verifying Xcode project readiness..."
 

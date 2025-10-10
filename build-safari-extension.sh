@@ -7,7 +7,7 @@ set -e  # Exit on any error
 
 # Configuration
 EXTENSION_DIR="$(pwd)"
-OUTPUT_DIR="$HOME/Development/EverTrack-Safari"
+OUTPUT_DIR="$(pwd)/../EverTrack-Safari"
 APP_NAME="EverTrack"
 BUNDLE_ID="com.evertrack.EverTrack"
 

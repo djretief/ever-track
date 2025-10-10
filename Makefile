@@ -1,66 +1,86 @@
-# Makefile for EverTrack Safari Extension
+# Makefile for EverTrack Cross-Browser Extension
 
-.PHONY: dev build release clean help install test icons verify firefox firefox-install chrome chrome-load
+.PHONY: help safari firefox chrome all clean test icons dev build release install verify
+.# Clean individual browser artifacts
+clean-safari:
+	@echo "🧹 Cleaning Safari build artifacts..."
+	rm -rf "$(pwd)/../EverTrack-Safari"
+
+clean-firefox:
+	@echo "🧹 Cleaning Firefox build artifacts..."
+	rm -rf "$(pwd)/../EverTrack-Firefox"
+
+clean-chrome:
+	@echo "🧹 Cleaning Chrome build artifacts..."
+	rm -rf "$(pwd)/../EverTrack-Chrome"i-install firefox-install chrome-load clean-safari clean-firefox clean-chrome
 
 # Default target
 help:
-	@echo "EverTrack Extension Build System"
+	@echo "EverTrack Cross-Browser Extension Build System"
 	@echo ""
-	@echo "Safari Extension targets:"
-	@echo "  dev       - Quick development build (package + open Xcode)"
-	@echo "  build     - Build extension package and Xcode project"
-	@echo "  release   - Full release build (package + build + open Xcode)"
+	@echo "Main targets:"
+	@echo "  all       - Build for all browsers (Safari, Firefox, Chrome)"
+	@echo "  safari    - Build Safari extension (Xcode project)"
+	@echo "  firefox   - Build Firefox extension (.xpi)"
+	@echo "  chrome    - Build Chrome extension (.zip)"
 	@echo "  clean     - Remove all build artifacts"
-	@echo "  install   - Install/reinstall the extension (build + run)"
-	@echo "  test      - Run a basic validation test"
+	@echo "  test      - Run validation tests"
 	@echo "  icons     - Generate icon files"
+	@echo ""
+	@echo "Safari targets:"
+	@echo "  dev       - Quick development build (package + open Xcode)"
+	@echo "  build     - Build Safari extension package and Xcode project"
+	@echo "  release   - Full release build (package + build + open Xcode)"
+	@echo "  install   - Build and open Safari extension in Xcode"
 	@echo "  verify    - Verify Xcode project is ready to build"
 	@echo ""
-	@echo "Firefox Extension targets:"
-	@echo "  firefox         - Build Firefox extension (.xpi)"
+	@echo "Firefox targets:"
 	@echo "  firefox-install - Build and install Firefox extension"
 	@echo ""
-	@echo "Chrome Extension targets:"
-	@echo "  chrome      - Build Chrome extension (.zip)"
+	@echo "Chrome targets:"
 	@echo "  chrome-load - Build and open Chrome for loading extension"
-	@echo "  firefox-install - Build and install Firefox extension"
-	@echo ""
-	@echo "  help      - Show this help message"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make dev      # Quick development setup"
-	@echo "  make release  # Full release build"
-	@echo "  make clean    # Clean build artifacts"
+	@echo "  make all      # Build for all browsers"
+	@echo "  make safari   # Build Safari extension"
+	@echo "  make dev      # Quick Safari development setup"
+	@echo "  make clean    # Clean all build artifacts"
+
+# Build for all browsers
+all:
+	@echo "🌐 Building for all browsers..."
+	@echo "🍎 Building Safari extension..."
+	./build-safari-extension.sh
+	@echo "🦊 Building Firefox extension..."
+	./build-firefox-extension.sh
+	@echo "🔵 Building Chrome extension..."
+	./build-chrome-extension.sh
+	@echo "✅ All browsers built successfully!"
+
+# Safari Extension targets
+safari:
+	@echo "🍎 Building Safari extension..."
+	./build-safari-extension.sh
 
 # Development build - quick setup for development
 dev:
-	@echo "🔧 Starting development build..."
-	./build.sh dev
+	@echo "🔧 Starting Safari development build..."
+	./build-safari-extension.sh --open
 
 # Build package and Xcode project
 build:
-	@echo "🔨 Building extension package..."
-	./build.sh build
+	@echo "🔨 Building Safari extension package..."
+	./build-safari-extension.sh --build
 
 # Full release build
 release:
-	@echo "🚀 Creating release build..."
-	./build.sh release
+	@echo "🚀 Creating Safari release build..."
+	./build-safari-extension.sh --build --open
 
-# Clean build artifacts
-clean:
-	@echo "🧹 Cleaning build artifacts..."
-	./build.sh clean
-	@echo "🧹 Cleaning Firefox build artifacts..."
-	rm -rf $(HOME)/Development/EverTrack-Firefox
-	@echo "🧹 Cleaning Chrome build artifacts..."
-	rm -rf $(HOME)/Development/EverTrack-Chrome
-
-# Install/reinstall the extension
-install: build
-	@echo "📦 Installing extension..."
-	@echo "Opening Xcode project for installation..."
-	@open "$(shell pwd)/../EverTrack-Safari/EverTrack/EverTrack.xcodeproj" 2>/dev/null || true
+# Install/reinstall the Safari extension
+install: safari
+	@echo "📦 Opening Safari extension in Xcode..."
+	@open "$(pwd)/../EverTrack-Safari/EverTrack/EverTrack.xcodeproj" 2>/dev/null || true
 
 # Basic validation test
 test:
@@ -75,11 +95,23 @@ test:
 	@echo "✅ All required files present"
 	@echo "Checking manifest.json syntax..."
 	@python3 -m json.tool manifest.json > /dev/null && echo "✅ manifest.json is valid JSON" || echo "❌ manifest.json has invalid JSON syntax"
-	@echo "Checking build script..."
+	@echo "Checking build scripts..."
 	@test -x build-safari-extension.sh || (echo "❌ build-safari-extension.sh not executable" && exit 1)
-	@test -x build.sh || (echo "❌ build.sh not executable" && exit 1)
+	@test -x build-firefox-extension.sh || (echo "❌ build-firefox-extension.sh not executable" && exit 1)
+	@test -x build-chrome-extension.sh || (echo "❌ build-chrome-extension.sh not executable" && exit 1)
 	@echo "✅ Build scripts are executable"
 	@echo "🎉 All tests passed!"
+
+# Clean all build artifacts
+clean:
+	@echo "🧹 Cleaning all build artifacts..."
+	@echo "🧹 Cleaning Safari build artifacts..."
+	rm -rf "$(pwd)/../EverTrack-Safari"
+	@echo "🧹 Cleaning Firefox build artifacts..."
+	rm -rf "$(pwd)/../EverTrack-Firefox"
+	@echo "🧹 Cleaning Chrome build artifacts..."
+	rm -rf "$(pwd)/../EverTrack-Chrome"
+	@echo "✅ All build artifacts cleaned"
 
 # Verify Xcode project readiness
 verify:
@@ -107,11 +139,6 @@ firefox-install:
 	@echo "🦊 Building and installing Firefox extension..."
 	./build-firefox-extension.sh --install
 
-# Clean Firefox build artifacts
-clean-firefox:
-	@echo "🧹 Cleaning Firefox build artifacts..."
-	rm -rf $(HOME)/Development/EverTrack-Firefox
-
 # Chrome extension targets
 chrome:
 	@echo "🔵 Building Chrome extension..."
@@ -121,17 +148,25 @@ chrome-load:
 	@echo "🔵 Building and loading Chrome extension..."
 	./build-chrome-extension.sh --load
 
-# Clean Chrome build artifacts
+# Clean individual browser artifacts
+clean-safari:
+	@echo "🧹 Cleaning Safari build artifacts..."
+	rm -rf "$(pwd)/../EverTrack-Safari"
+
+clean-firefox:
+	@echo "🧹 Cleaning Firefox build artifacts..."
+	rm -rf "$(pwd)/../EverTrack-Firefox"
+
 clean-chrome:
 	@echo "🧹 Cleaning Chrome build artifacts..."
-	rm -rf $(HOME)/Development/EverTrack-Chrome
+	rm -rf "$(pwd)/../EverTrack-Chrome"
 
 # Quick aliases
 d: dev
 f: firefox
-c: chrome
+ch: chrome
 b: build
 r: release
-c: clean
+cl: clean
 i: install
 t: test

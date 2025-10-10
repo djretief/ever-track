@@ -7,7 +7,7 @@ set -e  # Exit on any error
 
 # Configuration
 EXTENSION_DIR="$(pwd)"
-OUTPUT_DIR="$HOME/Development/EverTrack-Chrome"
+OUTPUT_DIR="$(pwd)/../EverTrack-Chrome"
 EXTENSION_NAME="EverTrack"
 VERSION="2.0.0"
 

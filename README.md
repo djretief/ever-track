@@ -84,7 +84,7 @@ make firefox-install
    - **Production install**: Go to `about:addons` → ⚙️ → "Install Add-on From File" → Select the `.xpi` file
    - **Development install**: Go to `about:debugging` → "This Firefox" → "Load Temporary Add-on" → Select `manifest.json`
 
-📦 **Extension Package**: Located at `~/Development/EverTrack-Firefox/EverTrack-v2.0.0.xpi`
+📦 **Extension Package**: Located at `/EverTrack-Firefox/EverTrack-v2.0.0.xpi`
 
 ## Chrome Installation
 
@@ -116,7 +116,7 @@ make chrome-load
    - **Production**: Upload the `.zip` file to Chrome Web Store Developer Dashboard
    - **Development**: Go to `chrome://extensions/` → Enable "Developer mode" → "Load unpacked" → Select the `clean-extension` directory
 
-📦 **Extension Package**: Located at `~/Development/EverTrack-Chrome/EverTrack-Chrome-v2.0.0.zip`
+📦 **Extension Package**: Located at `/EverTrack-Chrome/EverTrack-Chrome-v2.0.0.zip`
 
 ## Quick Build All Browsers
 

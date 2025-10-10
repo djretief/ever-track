@@ -7,7 +7,7 @@ set -e  # Exit on any error
 
 # Configuration
 EXTENSION_DIR="$(pwd)"
-OUTPUT_DIR="$HOME/Development/EverTrack-Firefox"
+OUTPUT_DIR="$(pwd)/../EverTrack-Firefox"
 EXTENSION_NAME="EverTrack"
 VERSION="2.0.0"
 

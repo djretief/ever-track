@@ -5,54 +5,54 @@
 
 // Prevent multiple script initialization
 if (window.everTrackContentScriptLoaded) {
-    console.log('EverTrack Content Script: Already loaded, skipping initialization');
+  console.log('EverTrack Content Script: Already loaded, skipping initialization');
 } else {
-    window.everTrackContentScriptLoaded = true;
+  window.everTrackContentScriptLoaded = true;
 
-class EverTrackContentScript {
+  class EverTrackContentScript {
     constructor() {
-        this.widget = null;
-        this.settings = null;
-        this.timeData = null;
-        this.updateInterval = null;
-        
-        // Initialize when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.init());
-        } else {
-            this.init();
-        }
+      this.widget = null;
+      this.settings = null;
+      this.timeData = null;
+      this.updateInterval = null;
+
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => this.init());
+      } else {
+        this.init();
+      }
     }
 
     /**
      * Initialize content script
      */
     async init() {
-        console.log('EverTrack Content Script: Initializing on', window.location.hostname);
-        
-        // Only run on Everhour domains
-        if (!this.isEverhourDomain()) {
-            console.log('EverTrack Content Script: Not on Everhour domain, exiting');
-            return;
-        }
+      console.log('EverTrack Content Script: Initializing on', window.location.hostname);
 
-        // Load CSS
-        this.loadCSS();
-        
-        // Load settings and create widget
-        await this.loadSettings();
-        
-        if (this.settings && this.settings.apiToken) {
-            await this.createWidget();
-            this.startAutoUpdate();
-        }
+      // Only run on Everhour domains
+      if (!this.isEverhourDomain()) {
+        console.log('EverTrack Content Script: Not on Everhour domain, exiting');
+        return;
+      }
 
-        // Listen for settings changes
-        chrome.storage.onChanged.addListener((changes, areaName) => {
-            if (areaName === 'sync') {
-                this.handleSettingsChange();
-            }
-        });
+      // Load CSS
+      this.loadCSS();
+
+      // Load settings and create widget
+      await this.loadSettings();
+
+      if (this.settings && this.settings.apiToken) {
+        await this.createWidget();
+        this.startAutoUpdate();
+      }
+
+      // Listen for settings changes
+      chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName === 'sync') {
+          this.handleSettingsChange();
+        }
+      });
     }
 
     /**
@@ -60,82 +60,82 @@ class EverTrackContentScript {
      * @returns {boolean}
      */
     isEverhourDomain() {
-        const hostname = window.location.hostname.toLowerCase();
-        return hostname.includes('everhour.com') || 
-               hostname.includes('app.everhour') ||
-               hostname === 'localhost' || // For development
-               hostname.includes('127.0.0.1'); // For development
+      const hostname = window.location.hostname.toLowerCase();
+      return hostname.includes('everhour.com') ||
+        hostname.includes('app.everhour') ||
+        hostname === 'localhost' || // For development
+        hostname.includes('127.0.0.1'); // For development
     }
 
     /**
      * Load CSS for content script
      */
     loadCSS() {
-        const cssUrl = chrome.runtime.getURL('css/content.css');
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = cssUrl;
-        document.head.appendChild(link);
+      const cssUrl = chrome.runtime.getURL('css/content.css');
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = cssUrl;
+      document.head.appendChild(link);
     }
 
     /**
      * Load settings from storage
      */
     async loadSettings() {
-        try {
-            this.settings = await EverTrackSettings.load();
-            console.log('EverTrack Content Script: Settings loaded:', this.settings);
-        } catch (error) {
-            console.error('EverTrack Content Script: Error loading settings:', error);
-        }
+      try {
+        this.settings = await EverTrackSettings.load();
+        console.log('EverTrack Content Script: Settings loaded:', this.settings);
+      } catch (error) {
+        console.error('EverTrack Content Script: Error loading settings:', error);
+      }
     }
 
     /**
      * Find the best insertion point for the widget in Everhour interface
      */
     async findInsertionPoint() {
-        console.log('EverTrack: Looking for insertion point...');
-        
-        // Primary target: find the outer-component element and its container
-        let i = 3;
-        let outerComponent = null;
-        while(outerComponent === null && i-- > 0) {
-            outerComponent = document.querySelector('.outer-component');
-            if (!outerComponent) {
-                // Wait for 100ms before trying again
-                i++;
-                await new Promise(resolve => setTimeout(resolve, 100));
-            } else {
-                break;
-            }
+      console.log('EverTrack: Looking for insertion point...');
+
+      // Primary target: find the outer-component element and its container
+      let i = 3;
+      let outerComponent = null;
+      while(outerComponent === null && i-- > 0) {
+        outerComponent = document.querySelector('.outer-component');
+        if (!outerComponent) {
+          // Wait for 100ms before trying again
+          i++;
+          await new Promise(resolve => setTimeout(resolve, 100));
+        } else {
+          break;
         }
-        console.log(`EverTrack: Outer component:`, outerComponent);
-        
-        if (outerComponent) {
-            const container = outerComponent.closest('.container');
-            console.log('EverTrack: Container found:', !!container);
-            if (container) {
-                console.log('EverTrack: Found container with outer-component');
-                return { container, insertBefore: outerComponent };
-            }
+      }
+      console.log('EverTrack: Outer component:', outerComponent);
+
+      if (outerComponent) {
+        const container = outerComponent.closest('.container');
+        console.log('EverTrack: Container found:', !!container);
+        if (container) {
+          console.log('EverTrack: Found container with outer-component');
+          return { container, insertBefore: outerComponent };
         }
+      }
     }
 
     /**
      * Create and insert widget into page
      */
     async createWidget() {
-        // Remove existing widget if present
-        this.removeWidget();
+      // Remove existing widget if present
+      this.removeWidget();
 
-        // Create widget container
-        this.widget = EverTrackDOM.createElement('div', {
-            className: 'evertrack-widget evertrack-inline',
-            id: 'evertrack-widget'
+      // Create widget container
+      this.widget = EverTrackDOM.createElement('div', {
+        className: 'evertrack-widget evertrack-inline',
+        id: 'evertrack-widget',
         });
 
-        // Create widget HTML structure
-        this.widget.innerHTML = `
+      // Create widget HTML structure
+      this.widget.innerHTML = `
             <div class="evertrack-widget-header">
                 <h3 class="evertrack-widget-title">EverTrack Progress</h3>
                 <div class="evertrack-widget-controls">
@@ -167,172 +167,172 @@ class EverTrackContentScript {
             </div>
         `;
 
-        // Find the best insertion point
-        const insertionInfo = await this.findInsertionPoint();
-        
-        if (!insertionInfo) {
-            console.log('EverTrack: Could not find insertion point');
-            return;
-        }
-        
-        console.log('EverTrack: Inserting widget with info:', insertionInfo);
-        
-        // Insert widget into the container, before the outer-component element
-        if (insertionInfo.insertBefore) {
-            // Insert before the specific element (outer-component)
-            insertionInfo.container.insertBefore(this.widget, insertionInfo.insertBefore);
-            console.log('EverTrack: Widget inserted before target element');
-        } else if (insertionInfo.container === document.body) {
-            // If we're inserting into body, prepend it
-            document.body.insertBefore(this.widget, document.body.firstChild);
-            console.log('EverTrack: Widget inserted at beginning of body');
-        } else {
-            // Insert at the beginning of the container
-            insertionInfo.container.insertBefore(this.widget, insertionInfo.container.firstChild);
-            console.log('EverTrack: Widget inserted at beginning of container');
-        }
+      // Find the best insertion point
+      const insertionInfo = await this.findInsertionPoint();
 
-        // Bind widget events
-        this.bindWidgetEvents();
+      if (!insertionInfo) {
+        console.log('EverTrack: Could not find insertion point');
+        return;
+      }
 
-        // Load and display data
-        await this.updateWidget();
+      console.log('EverTrack: Inserting widget with info:', insertionInfo);
+
+      // Insert widget into the container, before the outer-component element
+      if (insertionInfo.insertBefore) {
+        // Insert before the specific element (outer-component)
+        insertionInfo.container.insertBefore(this.widget, insertionInfo.insertBefore);
+        console.log('EverTrack: Widget inserted before target element');
+      } else if (insertionInfo.container === document.body) {
+        // If we're inserting into body, prepend it
+        document.body.insertBefore(this.widget, document.body.firstChild);
+        console.log('EverTrack: Widget inserted at beginning of body');
+      } else {
+        // Insert at the beginning of the container
+        insertionInfo.container.insertBefore(this.widget, insertionInfo.container.firstChild);
+        console.log('EverTrack: Widget inserted at beginning of container');
+      }
+
+      // Bind widget events
+      this.bindWidgetEvents();
+
+      // Load and display data
+      await this.updateWidget();
     }
 
     /**
      * Bind widget event listeners
      */
     bindWidgetEvents() {
-        if (!this.widget) return;
+      if (!this.widget) return;
 
-        // Refresh button
-        const refreshBtn = this.widget.querySelector('#evertrack-refresh');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => this.updateWidget());
-        }
+      // Refresh button
+      const refreshBtn = this.widget.querySelector('#evertrack-refresh');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => this.updateWidget());
+      }
 
-        // Close button
-        const closeBtn = this.widget.querySelector('#evertrack-close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.removeWidget());
-        }
+      // Close button
+      const closeBtn = this.widget.querySelector('#evertrack-close');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => this.removeWidget());
+      }
     }
 
     /**
      * Update widget with current data
      */
     async updateWidget() {
-        if (!this.widget || !this.settings) return;
+      if (!this.widget || !this.settings) return;
 
-        const elements = {
-            loading: this.widget.querySelector('.loading'),
-            error: this.widget.querySelector('.error'),
-            content: this.widget.querySelector('.content'),
-            modeLabel: this.widget.querySelector('.mode-label'),
-            workedHours: this.widget.querySelector('.worked-hours'),
-            targetHours: this.widget.querySelector('.target-hours'),
-            progressFill: this.widget.querySelector('.progress-fill'),
-            progressText: this.widget.querySelector('.progress-text'),
-            statusInfo: this.widget.querySelector('.status-info')
+      const elements = {
+        loading: this.widget.querySelector('.loading'),
+        error: this.widget.querySelector('.error'),
+        content: this.widget.querySelector('.content'),
+        modeLabel: this.widget.querySelector('.mode-label'),
+        workedHours: this.widget.querySelector('.worked-hours'),
+        targetHours: this.widget.querySelector('.target-hours'),
+        progressFill: this.widget.querySelector('.progress-fill'),
+        progressText: this.widget.querySelector('.progress-text'),
+        statusInfo: this.widget.querySelector('.status-info'),
         };
 
-        try {
-            // Show loading
-            EverTrackDOM.showLoading(elements.loading, elements.content);
-            EverTrackDOM.hide(elements.error);
+      try {
+        // Show loading
+        EverTrackDOM.showLoading(elements.loading, elements.content);
+        EverTrackDOM.hide(elements.error);
 
-            // Validate settings
-            const validationErrors = EverTrackSettings.validate(this.settings);
-            if (validationErrors.length > 0) {
-                throw new Error(validationErrors[0]);
-            }
+        // Validate settings
+        const validationErrors = EverTrackSettings.validate(this.settings);
+        if (validationErrors.length > 0) {
+          throw new Error(validationErrors[0]);
+        }
 
-            // Fetch time data
-            this.timeData = await EverTrackAPI.fetchTimeData(
-                this.settings.apiToken,
-                this.settings.trackingMode
+        // Fetch time data
+        this.timeData = await EverTrackAPI.fetchTimeData(
+          this.settings.apiToken,
+          this.settings.trackingMode,
             );
 
-            // Calculate progress
-            const targetHours = EverTrackSettings.getTargetHours(this.settings);
-            const progress = EverTrackTime.calculateProgress(this.timeData, targetHours, this.settings.trackingMode, this.settings.workSchedule);
+        // Calculate progress
+        const targetHours = EverTrackSettings.getTargetHours(this.settings);
+        const progress = EverTrackTime.calculateProgress(this.timeData, targetHours, this.settings.trackingMode, this.settings.workSchedule);
 
-            // Update display
-            EverTrackDOM.showContent(elements.content, elements.loading, elements.error);
-            
-            const displayElements = {
-                ...elements,
-                trackingMode: this.settings.trackingMode
+        // Update display
+        EverTrackDOM.showContent(elements.content, elements.loading, elements.error);
+
+        const displayElements = {
+          ...elements,
+          trackingMode: this.settings.trackingMode,
             };
-            
-            EverTrackDOM.updateProgressBar(displayElements, progress);
 
-            // Update mode label with period description
-            const periodDescription = EverTrackTime.getPeriodDescription(this.settings.trackingMode);
-            EverTrackDOM.setText(elements.modeLabel, `${this.settings.trackingMode} (${periodDescription}) target ${targetHours}h`);
+        EverTrackDOM.updateProgressBar(displayElements, progress);
 
-            console.log('EverTrack Content Script: Widget updated successfully');
+        // Update mode label with period description
+        const periodDescription = EverTrackTime.getPeriodDescription(this.settings.trackingMode);
+        EverTrackDOM.setText(elements.modeLabel, `${this.settings.trackingMode} (${periodDescription}) target ${targetHours}h`);
 
-        } catch (error) {
-            console.error('EverTrack Content Script: Error updating widget:', error);
-            EverTrackDOM.showError(elements.error, error.message, elements.content);
-            EverTrackDOM.hide(elements.loading);
-        }
+        console.log('EverTrack Content Script: Widget updated successfully');
+      } catch (error) {
+        console.error('EverTrack Content Script: Error updating widget:', error);
+        EverTrackDOM.showError(elements.error, error.message, elements.content);
+        EverTrackDOM.hide(elements.loading);
+      }
     }
 
     /**
      * Remove widget from page
      */
     removeWidget() {
-        if (this.widget) {
-            this.widget.remove();
-            this.widget = null;
-        }
-        this.stopAutoUpdate();
+      if (this.widget) {
+        this.widget.remove();
+        this.widget = null;
+      }
+      this.stopAutoUpdate();
     }
 
     /**
      * Start auto-update interval
      */
     startAutoUpdate() {
-        this.stopAutoUpdate();
-        // Update every 5 minutes
-        this.updateInterval = setInterval(() => {
-            this.updateWidget();
-        }, 5 * 60 * 1000);
+      this.stopAutoUpdate();
+      // Update every 5 minutes
+      this.updateInterval = setInterval(() => {
+          this.updateWidget();
+      },
+        5 * 60 * 1000,
+      );
     }
 
     /**
      * Stop auto-update interval
      */
     stopAutoUpdate() {
-        if (this.updateInterval) {
-            clearInterval(this.updateInterval);
-            this.updateInterval = null;
-        }
+      if (this.updateInterval) {
+        clearInterval(this.updateInterval);
+        this.updateInterval = null;
+      }
     }
 
     /**
      * Handle settings changes
      */
     async handleSettingsChange() {
-        console.log('EverTrack Content Script: Settings changed, updating...');
-        await this.loadSettings();
-        
-        if (this.settings && this.settings.apiToken) {
-            if (!this.widget) {
-                await this.createWidget();
-                this.startAutoUpdate();
-            } else {
-                await this.updateWidget();
-            }
+      console.log('EverTrack Content Script: Settings changed, updating...');
+      await this.loadSettings();
+
+      if (this.settings && this.settings.apiToken) {
+        if (!this.widget) {
+          await this.createWidget();
+          this.startAutoUpdate();
         } else {
-            this.removeWidget();
+          await this.updateWidget();
         }
+      } else {
+        this.removeWidget();
+      }
     }
-}
+  }
 
-// Initialize content script when script loads
-new EverTrackContentScript();
-
+  // Initialize content script when script loads
+  new EverTrackContentScript();
 }

@@ -7,72 +7,31 @@
   },
   "extends": [
     "eslint:recommended",
-    "@typescript-eslint/recommended",
-    "@typescript-eslint/recommended-requiring-type-checking",
     "prettier"
   ],
-  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2021,
-    "sourceType": "module",
-    "project": "./tsconfig.json"
+    "sourceType": "script"
   },
   "plugins": [
-    "@typescript-eslint",
     "prettier"
   ],
   "rules": {
-    "prettier/prettier": "error",
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-    "@typescript-eslint/explicit-function-return-type": "warn",
-    "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/prefer-const": "error",
-    "@typescript-eslint/no-var-requires": "error",
-    "@typescript-eslint/prefer-optional-chain": "error",
-    "@typescript-eslint/prefer-nullish-coalescing": "error",
-    "@typescript-eslint/strict-boolean-expressions": "error",
-    "@typescript-eslint/switch-exhaustiveness-check": "error",
-    "@typescript-eslint/consistent-type-imports": "error",
-    "no-console": "warn",
-    "no-debugger": "error",
-    "no-alert": "error",
-    "prefer-const": "error",
-    "no-var": "error",
-    "object-shorthand": "error",
-    "prefer-arrow-callback": "error",
-    "prefer-template": "error",
-    "template-curly-spacing": "error",
-    "arrow-spacing": "error",
-    "comma-dangle": ["error", "always-multiline"],
-    "semi": ["error", "always"],
-    "quotes": ["error", "single", { "avoidEscape": true }],
-    "indent": ["error", 2],
-    "max-len": ["warn", { "code": 120, "ignoreComments": true }],
-    "eol-last": "error",
-    "no-trailing-spaces": "error"
+    "no-console": "off",
+    "no-undef": "off", 
+    "no-unused-vars": "warn",
+    "indent": "off",
+    "max-len": "off",
+    "prettier/prettier": "off",
+    "no-case-declarations": "off"
   },
-  "overrides": [
-    {
-      "files": ["*.js"],
-      "rules": {
-        "@typescript-eslint/no-var-requires": "off",
-        "@typescript-eslint/explicit-function-return-type": "off"
-      }
-    },
-    {
-      "files": ["scripts/**/*"],
-      "rules": {
-        "no-console": "off",
-        "@typescript-eslint/no-var-requires": "off"
-      }
-    }
-  ],
-  "ignorePatterns": [
-    "dist/",
-    "node_modules/",
-    "*.min.js",
-    "build/",
-    "scripts/",
-    "manifests/"
-  ]
+  "globals": {
+    "chrome": "readonly",
+    "browser": "readonly",
+    "browserAPI": "readonly",
+    "EverTrackAPI": "readonly", 
+    "EverTrackSettings": "readonly",
+    "EverTrackTime": "readonly",
+    "EverTrackDOM": "readonly"
+  }
 }

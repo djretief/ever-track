@@ -203,7 +203,7 @@ if (window.everTrackContentScriptLoaded) {
      * Bind widget event listeners
      */
     bindWidgetEvents() {
-      if (!this.widget) return;
+      if (!this.widget) {return;}
 
       // Refresh button
       const refreshBtn = this.widget.querySelector('#evertrack-refresh');
@@ -222,7 +222,7 @@ if (window.everTrackContentScriptLoaded) {
      * Update widget with current data
      */
     async updateWidget() {
-      if (!this.widget || !this.settings) return;
+      if (!this.widget || !this.settings) {return;}
 
       const elements = {
         loading: this.widget.querySelector('.loading'),

@@ -18,7 +18,7 @@ if (!window.EverTrackTime) {
      * @returns {string} - Formatted time string
      */
     formatHours(hours, showMinutes = false) {
-      if (hours === 0) return '0h';
+      if (hours === 0) {return '0h';}
 
       // Round to nearest 0.1 hour for cleaner display
       const roundedHours = Math.round(hours * 10) / 10;
@@ -28,7 +28,7 @@ if (!window.EverTrackTime) {
         const minutes = Math.round((Math.abs(roundedHours) - wholeHours) * 60);
 
         let result = '';
-        if (roundedHours < 0) result += '-';
+        if (roundedHours < 0) {result += '-';}
 
         if (wholeHours > 0) {
           result += `${wholeHours}h`;
@@ -233,7 +233,7 @@ if (!window.EverTrackTime) {
       // Calculate work hours that should be completed by now
       const completedWorkHours = this.calculateCompletedWorkHours(weekStart, now, workSchedule);
 
-      if (totalWorkHours === 0) return 0;
+      if (totalWorkHours === 0) {return 0;}
 
       // Calculate fraction of work week completed
       const fractionComplete = completedWorkHours / totalWorkHours;
@@ -261,7 +261,7 @@ if (!window.EverTrackTime) {
       // Calculate work hours that should be completed by now
       const completedWorkHours = this.calculateCompletedWorkHours(monthStart, now, workSchedule);
 
-      if (totalWorkHours === 0) return 0;
+      if (totalWorkHours === 0) {return 0;}
 
       // Calculate fraction of work month completed
       const fractionComplete = completedWorkHours / totalWorkHours;
@@ -379,7 +379,7 @@ if (!window.EverTrackTime) {
         case 'daily':
         return today.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
-      case 'weekly':
+      case 'weekly': {
         const weekStart = new Date(today);
         // Change from Sunday-based to Monday-based week
         const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
@@ -389,6 +389,7 @@ if (!window.EverTrackTime) {
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekStart.getDate() + 6);
         return `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+      }
 
       case 'monthly':
         return today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });

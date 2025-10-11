@@ -17,13 +17,13 @@
     "prettier"
   ],
   "rules": {
-    "no-console": "off",
-    "no-undef": "off", 
-    "no-unused-vars": "warn",
-    "indent": "off",
-    "max-len": "off",
-    "prettier/prettier": "off",
-    "no-case-declarations": "off"
+    "no-console": "warn",
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-case-declarations": "error",
+    "prefer-const": "warn",
+    "no-var": "error",
+    "eqeqeq": "error",
+    "curly": "error"
   },
   "globals": {
     "chrome": "readonly",

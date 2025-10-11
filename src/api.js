@@ -113,7 +113,7 @@ if (!window.EverTrackAPI) {
         to.setHours(23, 59, 59, 999);
         break;
 
-      case 'weekly':
+      case 'weekly': {
         from = new Date(today);
         // Change from Sunday-based to Monday-based week
         const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
@@ -124,6 +124,7 @@ if (!window.EverTrackAPI) {
         to = new Date(today);
           to.setHours(23, 59, 59, 999);
           break;
+      }
 
       case 'monthly':
         from = new Date(today.getFullYear(), today.getMonth(), 1);

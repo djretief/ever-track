@@ -149,7 +149,7 @@ async function fetchTimeDataForContent(apiToken, from, to) {
 }
 
 // Handle extension icon click
-browserAPI.browserAction.onClicked.addListener((tab) => {
+browserAPI.browserAction.onClicked.addListener((_tab) => {
   // This is handled by the popup, but we can add additional logic here if needed
   console.log('Extension icon clicked');
 });

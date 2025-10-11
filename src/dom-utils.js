@@ -94,7 +94,7 @@ if (!window.EverTrackDOM) {
      * @param {Object} progress - Progress calculation result
      */
     updateProgressBar(elements, progress) {
-      const { progressFill, progressText, workedHours, targetHours, statusInfo, modeLabel } = elements;
+      const { progressFill, progressText, workedHours, targetHours, statusInfo } = elements;
 
       // Update text elements
       this.setText(workedHours, progress.formattedWorked);
@@ -125,7 +125,7 @@ if (!window.EverTrackDOM) {
       // Update progress text
       if (progressText) {
         let progressTextInput = `${Math.round(progress.difference * 10) / 10}h`;
-        if (progress.difference >= 0) progressTextInput = `+${Math.round(progress.difference * 10) / 10}h`;
+        if (progress.difference >= 0) {progressTextInput = `+${Math.round(progress.difference * 10) / 10}h`;}
         this.setText(progressText, progressTextInput);
 
         // Simple centered positioning without scale compensation

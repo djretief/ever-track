@@ -235,7 +235,7 @@ if (!window.EverTrackSettings) {
      * Populate form with current settings
      */
     populateForm() {
-      if (!this.settings) return;
+      if (!this.settings) {return;}
 
       // Basic settings
       if (this.elements.apiToken) {
@@ -269,13 +269,13 @@ if (!window.EverTrackSettings) {
      * Populate work schedule form
      */
     populateWorkSchedule() {
-      if (!this.settings.workSchedule) return;
+      if (!this.settings.workSchedule) {return;}
 
       const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
-      days.forEach((day, index) => {
+      days.forEach((day) => {
         const daySchedule = this.settings.workSchedule[day];
-        if (!daySchedule) return;
+        if (!daySchedule) {return;}
 
         // Enabled checkbox
         const enabledCheckbox = document.getElementById(`${day}-enabled`);
@@ -308,9 +308,9 @@ if (!window.EverTrackSettings) {
       const weeklyGroup = document.getElementById('weekly-target-group');
       const monthlyGroup = document.getElementById('monthly-target-group');
 
-      if (dailyGroup) dailyGroup.style.display = mode === 'daily' ? 'block' : 'none';
-      if (weeklyGroup) weeklyGroup.style.display = mode === 'weekly' ? 'block' : 'none';
-      if (monthlyGroup) monthlyGroup.style.display = mode === 'monthly' ? 'block' : 'none';
+      if (dailyGroup) {dailyGroup.style.display = mode === 'daily' ? 'block' : 'none';}
+      if (weeklyGroup) {weeklyGroup.style.display = mode === 'weekly' ? 'block' : 'none';}
+      if (monthlyGroup) {monthlyGroup.style.display = mode === 'monthly' ? 'block' : 'none';}
     }
 
     /**
@@ -462,7 +462,7 @@ if (!window.EverTrackSettings) {
      * @param {string} type - Message type ('success', 'error', 'warning')
      */
     showMessage(text, type = 'success') {
-      if (!this.elements.message) return;
+      if (!this.elements.message) {return;}
 
       this.elements.message.textContent = text;
       this.elements.message.className = `message ${type}`;

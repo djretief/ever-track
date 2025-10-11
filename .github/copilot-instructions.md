@@ -32,10 +32,12 @@
 - [ ] Review and optimize bundle sizes
 
 ### Testing & Quality Assurance
-- [ ] Add unit tests for utility functions
+- [~] Add unit tests for utility functions
 - [ ] Implement integration tests for API interactions
 - [ ] Add end-to-end tests for browser extension functionality
 - [ ] Set up automated browser testing across different versions
+
+**Note**: Unit testing setup complete with Jest framework, but browser extension modules require specialized testing approach due to global environment conflicts. Consider Puppeteer or WebDriver for browser extension testing.
 
 ### Documentation & Maintenance
 - [ ] Create contributor guidelines and code of conduct

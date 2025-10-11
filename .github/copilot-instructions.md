@@ -5,6 +5,11 @@
 - **Professional Tone**: Use clear, professional language without decorative elements
 - **Plain Text**: Prefer plain text formatting over visual embellishments
 
+### Security
+- **No API Keys**: Never include real API keys, tokens, or sensitive information in code or documentation
+- **Sanitize Examples**: Use placeholder values (e.g., `YOUR_API_KEY`) in examples and documentation
+- **Review Commits**: Always review commits to ensure no sensitive data is included
+
 ## Code Quality & Architecture Improvements
 
 ### Project Structure Enhancements

@@ -1,28 +1,45 @@
-<!-- Safari Extension for Everhour Time Tracking -->
+## Code Quality & Architecture Improvements
 
-- [x] Verify that the copilot-instructions.md file in the .github directory is created.
+### Project Structure Enhancements
+- [x] Organize build scripts into `/scripts` or `/tools` directory
+- [ ] Create browser-specific asset folders if project grows
+- [x] Consider `/src` directory for core logic and `/public` for static assets
+- [ ] Add architecture diagrams or flowcharts for contributor onboarding
 
-- [x] Clarify Project Requirements
-	Safari browser extension for Everhour time tracking with:
-	- Horizontal bar graph showing hours worked vs target
-	- Settings interface for API token and target hours configuration
-	- Simple popup interface (no complex breakdown)
-	- Green/red color coding for on track/under target
+### Code Quality & Development
+- [x] Implement TypeScript for type safety and better tooling
+- [ ] Add unit tests for core logic (time calculations, API integration)
+- [x] Set up ESLint or similar for consistent code style
+- [ ] Consider bundler (Webpack, Vite) for optimization and dependency management
+- [ ] Document API endpoints and expected responses for maintainers
 
-- [x] Scaffold the Project
-	Created Safari extension structure with manifest, popup, settings, and background scripts
+### Build & Release System
+- [ ] Add CI/CD integration (GitHub Actions) for automated builds and linting
+- [ ] Implement automated packaging and upload to browser stores
+- [ ] Add automated testing pipeline
+- [ ] Set up code quality checks in CI
 
-- [x] Customize the Project
-	Implemented Everhour API integration and time tracking visualization
+### Extension Architecture
+- [ ] Review and implement more granular permissions (least privilege principle)
+- [ ] Further abstract browser APIs for better cross-browser support
+- [ ] Add opt-in telemetry or error reporting for better support
+- [ ] Implement proper error boundaries and fallback mechanisms
 
-- [x] Compile the Project
-	Successfully packaged Safari extension using xcrun safari-web-extension-packager
+### Security & Performance
+- [ ] Audit permissions and reduce to minimum required
+- [ ] Implement content security policy review
+- [ ] Add performance monitoring for API calls
+- [ ] Review and optimize bundle sizes
 
-- [x] Create and Run Task
-	Generated Xcode project at /Users/danielretief/EverTrack-Safari/EverTrack/
+### Testing & Quality Assurance
+- [ ] Add unit tests for utility functions
+- [ ] Implement integration tests for API interactions
+- [ ] Add end-to-end tests for browser extension functionality
+- [ ] Set up automated browser testing across different versions
 
-- [x] Launch the Project
-	Extension ready to build and run in Xcode, then enable in Safari
-
-- [x] Ensure Documentation is Complete
-	Update README with installation and usage instructions
+### Documentation & Maintenance
+- [ ] Create contributor guidelines and code of conduct
+- [ ] Add API documentation with examples
+- [ ] Create troubleshooting guide with common issues
+- [ ] Document extension architecture and data flow
+- [ ] Add performance and security considerations to docs

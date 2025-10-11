@@ -19,10 +19,15 @@ echo "🔄 Updating version to $NEW_VERSION..."
 # Update version.json
 sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" version.json
 
-# Update all manifest files
-sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" manifest.json
-sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" manifest-firefox.json
-sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" manifest-chrome.json
+# Update package.json if it exists
+if [ -f "package.json" ]; then
+    sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" package.json
+fi
+
+# Update all manifest files in manifests directory
+sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" manifests/safari.json
+sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" manifests/firefox.json
+sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" manifests/chrome.json
 
 echo "✅ Version updated to $NEW_VERSION in all manifest files"
 echo "📝 Don't forget to update the CHANGELOG.md and commit your changes!"

@@ -5,6 +5,28 @@ All notable changes to EverTrack will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-10-11
+
+### Added
+- **Professional Project Structure**: Organized codebase with `src/` for code and `public/` for assets
+- **TypeScript Support**: Complete TypeScript configuration with browser extension types
+- **ESLint & Prettier**: Code quality and formatting setup for professional development
+- **Enhanced Build System**: Updated all build scripts for new directory structure
+- **Development Tooling**: npm scripts, automated setup script, and comprehensive documentation
+- **Centralized Manifests**: Browser-specific manifests organized in `manifests/` directory
+
+### Changed
+- **Project Structure**: Moved JavaScript files to `src/`, HTML/CSS to `public/`
+- **Build Scripts**: All scripts moved to `scripts/` directory with updated file paths
+- **Documentation**: Comprehensive README update with new development workflow
+- **Version Management**: Enhanced bump-version script supports new structure
+
+### Technical
+- Added comprehensive TypeScript type definitions for browser extensions
+- Integrated ESLint with TypeScript and Prettier for code quality
+- Updated Makefile with new script locations and enhanced targets
+- Created development environment setup script for new contributors
+
 ## [2.0.1] - 2025-10-11
 
 Release version to correspond with version number on Chrome Web Store so all releases can be on the same version.

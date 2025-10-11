@@ -1,6 +1,6 @@
 # EverTrack - Cross-Browser Extension for Everhour Time Tracking
 
-A cross-browser extension for Safari, Firefox, and Chrome that provides visual progress tracking for your Everhour time against daily, weekly, and monthly targets.
+A professional cross-browser extension for Safari, Firefox, and Chrome that provides visual progress tracking for your Everhour time against daily, weekly, and monthly targets.
 
 ## Features
 
@@ -12,17 +12,129 @@ A cross-browser extension for Safari, Firefox, and Chrome that provides visual p
 - 🔐 **Secure API Integration**: Safe storage of your Everhour API token
 - 📱 **Clean Interface**: Simple popup that doesn't interfere with browsing
 - 🌐 **Cross-Browser Support**: Works on Safari (macOS), Firefox (all OS), and Chrome (all OS)
+- 🛠️ **Professional Development Setup**: TypeScript, ESLint, automated builds
 
 ### Smart Progress Calculation
 
 EverTrack calculates progress based on your actual work schedule, not calendar time. For example, if your weekly target is 40 hours working Mon-Fri 9-5, on Wednesday at 2pm you should have completed ~50% of your target (20 hours).
+
+## Project Structure
+
+```
+EverTrack/
+├── src/                     # TypeScript/JavaScript source code
+│   ├── background.ts        # Background service worker
+│   ├── popup.ts            # Popup interface logic
+│   ├── content.ts          # Content script injection
+│   ├── settings.ts         # Settings page logic
+│   ├── api.ts              # Everhour API integration
+│   ├── time-utils.ts       # Time calculation utilities
+│   ├── dom-utils.ts        # DOM manipulation helpers
+│   └── browser-compat.ts   # Cross-browser compatibility layer
+├── public/                  # Static assets
+│   ├── popup.html          # Extension popup interface
+│   ├── settings.html       # Settings page
+│   └── css/                # Stylesheets
+├── manifests/              # Browser-specific manifests
+│   ├── safari.json         # Safari Web Extension manifest
+│   ├── firefox.json        # Firefox WebExtension manifest
+│   └── chrome.json         # Chrome Extension manifest
+├── scripts/                # Build and utility scripts
+│   ├── build-safari-extension.sh
+│   ├── build-firefox-extension.sh
+│   ├── build-chrome-extension.sh
+│   ├── bump-version.sh
+│   └── setup-dev-env.sh
+├── types/                  # TypeScript type definitions
+│   └── global.d.ts         # Browser extension types
+├── icons/                  # Extension icons
+├── dist/                   # Compiled TypeScript output
+├── package.json           # Node.js dependencies and scripts
+├── tsconfig.json          # TypeScript configuration
+├── .eslintrc.json         # ESLint configuration
+└── Makefile              # Build automation
+```
+
+## Development Setup
+
+### Prerequisites
+- **macOS** (for Safari development)
+- **Xcode Command Line Tools** (for Safari)
+- **Node.js 16+** and **npm** (for TypeScript and linting)
+- **Homebrew** (recommended for dependencies)
+
+### Quick Setup
+```bash
+# Run the automated setup script
+./scripts/setup-dev-env.sh
+```
+
+### Manual Setup
+```bash
+# Install Node.js (if not already installed)
+brew install node
+
+# Install dependencies
+npm install
+
+# Build TypeScript
+npm run build:ts
+
+# Run quality checks
+npm run test
+```
+
+## Building Extensions
+
+### All Browsers
+```bash
+# Build for all browsers
+make all
+# or
+npm run build
+
+# Clean all builds
+make clean
+```
+
+### Individual Browsers
+```bash
+# Safari
+make safari
+# or
+npm run build:safari
+
+# Firefox  
+make firefox
+# or
+npm run build:firefox
+
+# Chrome
+make chrome
+# or
+npm run build:chrome
+```
+
+### Development Commands
+```bash
+# TypeScript development
+npm run watch          # Watch TypeScript files for changes
+npm run type-check     # Type check without building
+npm run lint           # Run ESLint and fix issues
+npm run lint:check     # Check code quality
+
+# Quick development builds
+npm run dev:safari     # Build and open Safari extension in Xcode
+npm run dev:firefox    # Build and install in Firefox
+npm run dev:chrome     # Build and open Chrome for loading
+```
 
 ## Installation
 
 ### Prerequisites
 - Everhour account with API access
 - **For Safari**: macOS with Safari browser + Xcode
-- **For Firefox**: Firefox browser (any OS)
+- **For Firefox**: Firefox browser (any OS)  
 - **For Chrome**: Chrome browser (any OS)
 
 ### Get Your Everhour API Token
@@ -40,13 +152,10 @@ EverTrack calculates progress based on your actual work schedule, not calendar t
 2. **Build the Extension**:
    ```bash
    # Quick development build
-   ./build.sh dev
+   npm run dev:safari
    
-   # Or full release build
-   ./build.sh release
-   
-   # Using Makefile
-   make build
+   # Or manual build
+   make safari
    ```
 
 3. **Run in Xcode**:
@@ -56,7 +165,16 @@ EverTrack calculates progress based on your actual work schedule, not calendar t
 
 ## Firefox Installation
 
-### Method 1: Using Make (Recommended)
+### Method 1: Using npm (Recommended)
+```bash
+# Build and install Firefox extension
+npm run dev:firefox
+
+# Or just build
+npm run build:firefox
+```
+
+### Method 2: Using Make
 ```bash
 # Build Firefox extension
 make firefox
@@ -65,30 +183,33 @@ make firefox
 make firefox-install
 ```
 
-### Method 2: Manual Build
+### Method 3: Manual Build
 ```bash
 # Build Firefox extension (.xpi package)
-./build-firefox-extension.sh
+./scripts/build-firefox-extension.sh
 
-# Build and automatically open in Firefox
-./build-firefox-extension.sh --install
+# Build and automatically open in Firefox  
+./scripts/build-firefox-extension.sh --install
 ```
 
-### Method 3: Development Install
-1. **Build the extension**:
-   ```bash
-   ./build-firefox-extension.sh
-   ```
+### Installation in Firefox
+1. **Production install**: Go to `about:addons` → ⚙️ → "Install Add-on From File" → Select the `.xpi` file
+2. **Development install**: Go to `about:debugging` → "This Firefox" → "Load Temporary Add-on" → Select `manifest.json`
 
-2. **Install in Firefox**:
-   - **Production install**: Go to `about:addons` → ⚙️ → "Install Add-on From File" → Select the `.xpi` file
-   - **Development install**: Go to `about:debugging` → "This Firefox" → "Load Temporary Add-on" → Select `manifest.json`
-
-📦 **Extension Package**: Located at `/EverTrack-Firefox/EverTrack-v2.0.0.xpi`
+📦 **Extension Package**: Located at `../EverTrack-Firefox/EverTrack-v2.0.1.xpi`
 
 ## Chrome Installation
 
-### Method 1: Using Make (Recommended)
+### Method 1: Using npm (Recommended)
+```bash
+# Build and load Chrome extension
+npm run dev:chrome
+
+# Or just build
+npm run build:chrome
+```
+
+### Method 2: Using Make
 ```bash
 # Build Chrome extension
 make chrome
@@ -97,38 +218,35 @@ make chrome
 make chrome-load
 ```
 
-### Method 2: Manual Build
+### Method 3: Manual Build
 ```bash
 # Build Chrome extension (.zip package)
-./build-chrome-extension.sh
+./scripts/build-chrome-extension.sh
 
 # Build and open Chrome extensions page
-./build-chrome-extension.sh --load
+./scripts/build-chrome-extension.sh --load
 ```
 
-### Method 3: Development Install
-1. **Build the extension**:
-   ```bash
-   ./build-chrome-extension.sh
-   ```
-
+### Installation in Chrome
+1. **Build the extension** (using any method above)
 2. **Install in Chrome**:
    - **Production**: Upload the `.zip` file to Chrome Web Store Developer Dashboard
    - **Development**: Go to `chrome://extensions/` → Enable "Developer mode" → "Load unpacked" → Select the `clean-extension` directory
 
-📦 **Extension Package**: Located at `/EverTrack-Chrome/EverTrack-Chrome-v2.0.0.zip`
+📦 **Extension Package**: Located at `../EverTrack-Chrome/EverTrack-Chrome-v2.0.1.zip`
 
-## Quick Build All Browsers
+## Version Management
 
 ```bash
-# Build for all browsers
-make build    # Safari
-make firefox  # Firefox  
-make chrome   # Chrome
+# Bump version (updates all manifests and package.json)
+npm run bump VERSION=2.1.0
+# or
+./scripts/bump-version.sh 2.1.0
 
-# Quick aliases
-make f        # Firefox
-make c        # Chrome
+# Create release build
+npm run release
+# or  
+make release
 ```
 
 4. **Enable in Safari**:

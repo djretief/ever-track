@@ -83,3 +83,17 @@ node_modules/
 # Temporary files
 *.tmp
 *.temp
+
+# TypeScript
+dist/
+*.tsbuildinfo
+*.d.ts.map
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test coverage
+coverage/

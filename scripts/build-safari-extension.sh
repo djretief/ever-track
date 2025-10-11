@@ -71,23 +71,28 @@ check_requirements() {
 validate_extension() {
     print_status "Validating extension files..."
     
-    # Check if manifest.json exists
-    if [ ! -f "$EXTENSION_DIR/manifest.json" ]; then
-        print_error "manifest.json not found in $EXTENSION_DIR"
+    # Check if Safari manifest exists
+    if [ ! -f "$EXTENSION_DIR/manifests/safari.json" ]; then
+        print_error "Safari manifest not found in $EXTENSION_DIR/manifests/safari.json"
         exit 1
     fi
     
-    # Check if required root-level files exist
-    required_files=("popup.html" "background.js" "settings.html" "manifest.json")
-    for file in "${required_files[@]}"; do
-        if [ ! -f "$EXTENSION_DIR/$file" ]; then
-            print_error "Required file $file not found"
-            exit 1
-        fi
-    done
+    # Check if required files exist
+    if [ ! -f "$EXTENSION_DIR/public/popup.html" ]; then
+        print_error "Required file public/popup.html not found"
+        exit 1
+    fi
+    if [ ! -f "$EXTENSION_DIR/src/background.js" ]; then
+        print_error "Required file src/background.js not found"
+        exit 1
+    fi
+    if [ ! -f "$EXTENSION_DIR/public/settings.html" ]; then
+        print_error "Required file public/settings.html not found"
+        exit 1
+    fi
     
     # Check if modular JS files exist
-    required_js_files=("js/api.js" "js/settings.js" "js/time-utils.js" "js/dom-utils.js" "js/popup.js" "js/content.js")
+    required_js_files=("src/api.js" "src/settings.js" "src/time-utils.js" "src/dom-utils.js" "src/popup.js" "src/content.js")
     for file in "${required_js_files[@]}"; do
         if [ ! -f "$EXTENSION_DIR/$file" ]; then
             print_error "Required modular JS file $file not found"
@@ -96,7 +101,7 @@ validate_extension() {
     done
     
     # Check if CSS files exist
-    required_css_files=("css/popup.css" "css/settings.css" "css/content.css")
+    required_css_files=("public/css/popup.css" "public/css/settings.css" "public/css/content.css")
     for file in "${required_css_files[@]}"; do
         if [ ! -f "$EXTENSION_DIR/$file" ]; then
             print_error "Required CSS file $file not found"
@@ -196,16 +201,17 @@ create_clean_extension() {
     mkdir -p "$CLEAN_EXTENSION_DIR"
     
     # Copy only necessary files for Safari extension
-    cp "$EXTENSION_DIR/manifest.json" "$CLEAN_EXTENSION_DIR/"
-    cp "$EXTENSION_DIR/background.js" "$CLEAN_EXTENSION_DIR/"
-    cp "$EXTENSION_DIR/popup.html" "$CLEAN_EXTENSION_DIR/"
-    cp "$EXTENSION_DIR/settings.html" "$CLEAN_EXTENSION_DIR/"
+    cp "$EXTENSION_DIR/manifests/safari.json" "$CLEAN_EXTENSION_DIR/manifest.json"
+    cp "$EXTENSION_DIR/src/background.js" "$CLEAN_EXTENSION_DIR/"
+    cp "$EXTENSION_DIR/public/popup.html" "$CLEAN_EXTENSION_DIR/"
+    cp "$EXTENSION_DIR/public/settings.html" "$CLEAN_EXTENSION_DIR/"
     
-    # Copy JS directory
-    cp -r "$EXTENSION_DIR/js" "$CLEAN_EXTENSION_DIR/"
+    # Copy JS directory from src
+    mkdir -p "$CLEAN_EXTENSION_DIR/js"
+    cp "$EXTENSION_DIR"/src/*.js "$CLEAN_EXTENSION_DIR/js/"
     
-    # Copy CSS directory  
-    cp -r "$EXTENSION_DIR/css" "$CLEAN_EXTENSION_DIR/"
+    # Copy CSS directory from public
+    cp -r "$EXTENSION_DIR/public/css" "$CLEAN_EXTENSION_DIR/"
     
     # Copy icons directory
     if [ -d "$EXTENSION_DIR/icons" ]; then

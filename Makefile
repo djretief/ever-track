@@ -49,8 +49,8 @@ bump-version:
 		echo "Example: make bump-version VERSION=0.2.0"; \
 		exit 1; \
 	fi
-	@chmod +x bump-version.sh
-	@./bump-version.sh $(VERSION)
+	@chmod +x scripts/bump-version.sh
+	@./scripts/bump-version.sh $(VERSION)
 	@echo "📝 Version bumped to $(VERSION). Don't forget to update CHANGELOG.md!"
 
 bump: bump-version
@@ -72,17 +72,41 @@ release:
 all:
 	@echo "Building for all browsers..."
 	@echo "Building Safari extension..."
-	./build-safari-extension.sh
+	./scripts/build-safari-extension.sh
 	@echo "Building Firefox extension..."
-	./build-firefox-extension.sh
+	./scripts/build-firefox-extension.sh
 	@echo "Building Chrome extension..."
-	./build-chrome-extension.sh
+	./scripts/build-chrome-extension.sh
 	@echo "All browsers built successfully!"
 
 # Safari Extension targets
 safari:
 	@echo "Building Safari extension..."
-	./build-safari-extension.sh
+	./scripts/build-safari-extension.sh
+
+# Development build - quick setup for development
+dev:
+	@echo "🔧 Starting Safari development build..."
+	./scripts/build-safari-extension.sh --open
+
+# Build package and Xcode project
+build:
+	@echo "🔨 Building Safari extension package..."
+	./scripts/build-safari-extension.sh --build
+
+# Install/reinstall the Safari extension
+install: safari
+	@echo "📱 Installing Safari extension..."
+	@open "$(pwd)/../EverTrack-Safari/EverTrack/EverTrack.xcodeproj"
+
+# Verify Xcode project readiness
+verify:
+	@echo "🔍 Verifying Xcode project..."
+	@if [ -f "verify-project.sh" ]; then \
+		./verify-project.sh; \
+	else \
+		echo "❌ verify-project.sh not found"; \
+	fi
 
 # Basic validation test
 test:
@@ -100,16 +124,16 @@ test:
 	@test -f manifest-chrome.json || (echo "❌ manifest-chrome.json missing" && exit 1)
 	@echo "Checking version management..."
 	@test -f version.json || (echo "❌ version.json missing" && exit 1)
-	@test -f bump-version.sh || (echo "❌ bump-version.sh missing" && exit 1)
+	@test -f scripts/bump-version.sh || (echo "❌ scripts/bump-version.sh missing" && exit 1)
 	@test -f CHANGELOG.md || (echo "❌ CHANGELOG.md missing" && exit 1)
 	@echo "Checking manifest.json syntax..."
 	@python3 -m json.tool manifest.json > /dev/null && echo "✅ manifest.json is valid JSON" || echo "❌ manifest.json has invalid JSON syntax"
 	@python3 -m json.tool version.json > /dev/null && echo "✅ version.json is valid JSON" || echo "❌ version.json has invalid JSON syntax"
 	@echo "Checking build scripts..."
-	@test -x build-safari-extension.sh || (echo "❌ build-safari-extension.sh not executable" && exit 1)
-	@test -x build-firefox-extension.sh || (echo "❌ build-firefox-extension.sh not executable" && exit 1)
-	@test -x build-chrome-extension.sh || (echo "❌ build-chrome-extension.sh not executable" && exit 1)
-	@test -x bump-version.sh || (echo "❌ bump-version.sh not executable" && exit 1)
+	@test -x scripts/build-safari-extension.sh || (echo "❌ scripts/build-safari-extension.sh not executable" && exit 1)
+	@test -x scripts/build-firefox-extension.sh || (echo "❌ scripts/build-firefox-extension.sh not executable" && exit 1)
+	@test -x scripts/build-chrome-extension.sh || (echo "❌ scripts/build-chrome-extension.sh not executable" && exit 1)
+	@test -x scripts/bump-version.sh || (echo "❌ scripts/bump-version.sh not executable" && exit 1)
 	@echo "✅ Build scripts are executable"
 	@echo "🎉 All tests passed!"
 
@@ -139,20 +163,20 @@ icons:
 # Firefox Extension targets
 firefox:
 	@echo "🦊 Building Firefox extension..."
-	./build-firefox-extension.sh
+	./scripts/build-firefox-extension.sh
 
 firefox-install:
 	@echo "🦊 Building and installing Firefox extension..."
-	./build-firefox-extension.sh --install
+	./scripts/build-firefox-extension.sh --install
 
 # Chrome extension targets
 chrome:
 	@echo "🔵 Building Chrome extension..."
-	./build-chrome-extension.sh
+	./scripts/build-chrome-extension.sh
 
 chrome-load:
 	@echo "🔵 Building and loading Chrome extension..."
-	./build-chrome-extension.sh --load
+	./scripts/build-chrome-extension.sh --load
 
 # Clean individual browser artifacts
 clean-safari:

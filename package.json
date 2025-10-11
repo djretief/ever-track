@@ -1,0 +1,62 @@
+{
+  "name": "evertrack",
+  "version": "2.1.0",
+  "description": "Cross-browser time tracking extension with smart project management",
+  "private": true,
+  "scripts": {
+    "build": "npm run build:ts && npm run build:extensions",
+    "build:ts": "tsc",
+    "build:extensions": "make all",
+    "build:safari": "make safari",
+    "build:firefox": "make firefox", 
+    "build:chrome": "make chrome",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist && make clean",
+    "lint": "eslint src/**/*.{ts,js} --fix",
+    "lint:check": "eslint src/**/*.{ts,js}",
+    "type-check": "tsc --noEmit",
+    "dev:safari": "make dev",
+    "dev:firefox": "make firefox-install",
+    "dev:chrome": "make chrome-load",
+    "bump": "npm run bump:version",
+    "bump:version": "./scripts/bump-version.sh",
+    "release": "npm run build && make release",
+    "test": "npm run lint:check && npm run type-check",
+    "install:deps": "npm install",
+    "setup": "npm install && npm run build:ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
+  },
+  "keywords": [
+    "browser-extension",
+    "time-tracking",
+    "productivity",
+    "safari",
+    "firefox", 
+    "chrome",
+    "cross-browser"
+  ],
+  "author": "Daniel Retief",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/djretief/ever-track.git"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions"
+  ]
+}

@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Chrome Extension Build Script for EverTrack
-# This script packages the web extension for Chrome
+# Firefox Extension Build Script for EverTrack
+# This script packages the web extension for Firefox
 
 set -e  # Exit on any error
 
 # Configuration
 EXTENSION_DIR="$(pwd)"
-OUTPUT_DIR="$(pwd)/../EverTrack-Chrome"
+OUTPUT_DIR="$(pwd)/../EverTrack-Firefox"
 EXTENSION_NAME="EverTrack"
 
 # Read version from version.json
@@ -64,16 +64,21 @@ validate_files() {
     print_status "Validating extension files..."
     
     # Check if required files exist
-    required_files=("background.js" "popup.html" "settings.html")
-    for file in "${required_files[@]}"; do
-        if [ ! -f "$EXTENSION_DIR/$file" ]; then
-            print_error "Required file $file not found"
-            exit 1
-        fi
-    done
+    if [ ! -f "$EXTENSION_DIR/src/background.js" ]; then
+        print_error "Required file src/background.js not found"
+        exit 1
+    fi
+    if [ ! -f "$EXTENSION_DIR/public/popup.html" ]; then
+        print_error "Required file public/popup.html not found"
+        exit 1
+    fi
+    if [ ! -f "$EXTENSION_DIR/public/settings.html" ]; then
+        print_error "Required file public/settings.html not found"
+        exit 1
+    fi
     
     # Check if modular JS files exist
-    required_js_files=("js/api.js" "js/settings.js" "js/time-utils.js" "js/dom-utils.js" "js/popup.js" "js/content.js")
+    required_js_files=("src/api.js" "src/settings.js" "src/time-utils.js" "src/dom-utils.js" "src/popup.js" "src/content.js")
     for file in "${required_js_files[@]}"; do
         if [ ! -f "$EXTENSION_DIR/$file" ]; then
             print_error "Required modular JS file $file not found"
@@ -82,7 +87,7 @@ validate_files() {
     done
     
     # Check if CSS files exist
-    required_css_files=("css/popup.css" "css/settings.css" "css/content.css")
+    required_css_files=("public/css/popup.css" "public/css/settings.css" "public/css/content.css")
     for file in "${required_css_files[@]}"; do
         if [ ! -f "$EXTENSION_DIR/$file" ]; then
             print_error "Required CSS file $file not found"
@@ -119,51 +124,46 @@ prepare_resources() {
     print_success "Extension resources prepared"
 }
 
-# Function to create clean extension directory for Chrome
-create_clean_chrome_extension() {
-    print_status "Creating clean Chrome extension directory..."
+# Function to create clean extension directory for Firefox
+create_clean_firefox_extension() {
+    print_status "Creating clean Firefox extension directory..."
     
     # Create clean directory
     CLEAN_EXTENSION_DIR="$OUTPUT_DIR/clean-extension"
     rm -rf "$CLEAN_EXTENSION_DIR"
     mkdir -p "$CLEAN_EXTENSION_DIR"
     
-    # Copy Chrome manifest
-    if [ -f "$EXTENSION_DIR/manifest-chrome.json" ]; then
-        cp "$EXTENSION_DIR/manifest-chrome.json" "$CLEAN_EXTENSION_DIR/manifest.json"
+    # Copy Firefox manifest
+    if [ -f "$EXTENSION_DIR/manifests/firefox.json" ]; then
+        cp "$EXTENSION_DIR/manifests/firefox.json" "$CLEAN_EXTENSION_DIR/manifest.json"
     else
-        print_error "Chrome manifest (manifest-chrome.json) not found"
+        print_error "Firefox manifest (manifests/firefox.json) not found"
         exit 1
     fi
     
-    # Copy Chrome-specific background script
-    if [ -f "$EXTENSION_DIR/background-chrome.js" ]; then
-        cp "$EXTENSION_DIR/background-chrome.js" "$CLEAN_EXTENSION_DIR/background.js"
-    else
-        # Fallback to regular background script
-        cp "$EXTENSION_DIR/background.js" "$CLEAN_EXTENSION_DIR/"
-    fi
+    # Copy core extension files
+    cp "$EXTENSION_DIR/src/background.js" "$CLEAN_EXTENSION_DIR/"
+    cp "$EXTENSION_DIR/public/popup.html" "$CLEAN_EXTENSION_DIR/"
+    cp "$EXTENSION_DIR/public/settings.html" "$CLEAN_EXTENSION_DIR/"
     
-    cp "$EXTENSION_DIR/popup.html" "$CLEAN_EXTENSION_DIR/"
-    cp "$EXTENSION_DIR/settings.html" "$CLEAN_EXTENSION_DIR/"
+    # Copy JS directory from src
+    mkdir -p "$CLEAN_EXTENSION_DIR/js"
+    cp "$EXTENSION_DIR"/src/*.js "$CLEAN_EXTENSION_DIR/js/"
     
-    # Copy JS directory
-    cp -r "$EXTENSION_DIR/js" "$CLEAN_EXTENSION_DIR/"
-    
-    # Copy CSS directory  
-    cp -r "$EXTENSION_DIR/css" "$CLEAN_EXTENSION_DIR/"
+    # Copy CSS directory from public
+    cp -r "$EXTENSION_DIR/public/css" "$CLEAN_EXTENSION_DIR/"
     
     # Copy icons directory
     if [ -d "$EXTENSION_DIR/icons" ]; then
         cp -r "$EXTENSION_DIR/icons" "$CLEAN_EXTENSION_DIR/"
     fi
     
-    print_success "Clean Chrome extension directory created"
+    print_success "Clean Firefox extension directory created"
 }
 
-# Function to create Chrome extension package
-create_chrome_package() {
-    print_status "Creating Chrome extension package..."
+# Function to create Firefox extension package
+create_firefox_package() {
+    print_status "Creating Firefox extension package..."
     
     # Remove existing output directory if it exists
     if [ -d "$OUTPUT_DIR" ]; then
@@ -175,78 +175,79 @@ create_chrome_package() {
     mkdir -p "$OUTPUT_DIR"
     
     # Create clean extension directory
-    create_clean_chrome_extension
+    create_clean_firefox_extension
     
-    # Create the .zip package for Chrome Web Store
-    print_status "Creating .zip package for Chrome Web Store..."
+    # Create the .xpi package
+    print_status "Creating .xpi package..."
     cd "$CLEAN_EXTENSION_DIR"
     
-    local zip_filename="${EXTENSION_NAME}-Chrome-v${VERSION}.zip"
-    local zip_path="$OUTPUT_DIR/$zip_filename"
+    local xpi_filename="${EXTENSION_NAME}-v${VERSION}.xpi"
+    local xpi_path="$OUTPUT_DIR/$xpi_filename"
     
-    # Create zip file
-    zip -r "$zip_path" . -x "*.DS_Store" "*.git*" "node_modules/*" "*.log"
+    # Create zip file with .xpi extension
+    zip -r "$xpi_path" . -x "*.DS_Store" "*.git*" "node_modules/*" "*.log"
     
     if [ $? -eq 0 ]; then
-        print_success "Chrome extension package created successfully"
-        print_success "Package location: $zip_path"
+        print_success "Firefox extension package created successfully"
+        print_success "Package location: $xpi_path"
         
-        # Keep clean directory for development testing
-        print_success "Development directory: $CLEAN_EXTENSION_DIR"
+        # Clean up temporary directory
+        rm -rf "$CLEAN_EXTENSION_DIR"
         
         return 0
     else
-        print_error "Failed to create Chrome extension package"
+        print_error "Failed to create Firefox extension package"
         rm -rf "$CLEAN_EXTENSION_DIR"
         exit 1
     fi
 }
 
-# Function to open Chrome for extension loading
-open_chrome_extension() {
-    print_status "Opening Chrome for extension loading..."
+# Function to install extension for testing
+install_firefox_extension() {
+    print_status "Opening Firefox for extension installation..."
     
-    if command -v google-chrome &> /dev/null; then
-        google-chrome chrome://extensions/ &
-        print_success "Opened Chrome Extensions page"
-    elif command -v google-chrome-stable &> /dev/null; then
-        google-chrome-stable chrome://extensions/ &
-        print_success "Opened Chrome Extensions page"
-    elif [ -d "/Applications/Google Chrome.app" ]; then
-        open -a "Google Chrome" --args --new-window chrome://extensions/
-        print_success "Opened Chrome Extensions page"
+    local xpi_filename="${EXTENSION_NAME}-v${VERSION}.xpi"
+    local xpi_path="$OUTPUT_DIR/$xpi_filename"
+    
+    if [ -f "$xpi_path" ]; then
+        # Try to open with Firefox
+        if command -v firefox &> /dev/null; then
+            firefox "$xpi_path" &
+            print_success "Opened extension package in Firefox"
+        elif [ -d "/Applications/Firefox.app" ]; then
+            open -a "Firefox" "$xpi_path"
+            print_success "Opened extension package in Firefox"
+        else
+            print_warning "Firefox not found. Please manually install: $xpi_path"
+        fi
     else
-        print_warning "Chrome not found. Please manually go to chrome://extensions/"
+        print_error "Extension package not found: $xpi_path"
+        exit 1
     fi
-    
-    print_status "To load the extension:"
-    print_status "1. Enable 'Developer mode' in the top right"
-    print_status "2. Click 'Load unpacked'"
-    print_status "3. Select: $CLEAN_EXTENSION_DIR"
 }
 
 # Main execution function
 main() {
     echo "=========================================="
-    echo "EverTrack Chrome Extension Builder"
+    echo "EverTrack Firefox Extension Builder"
     echo "=========================================="
     
     read_version
-    echo "[INFO] Building $APP_NAME v$VERSION for Chrome"
+    echo "[INFO] Building $APP_NAME v$VERSION for Firefox"
     
     # Parse command line arguments
-    OPEN_CHROME=false
+    INSTALL_EXTENSION=false
     
     while [[ $# -gt 0 ]]; do
         case $1 in
-            --load)
-                OPEN_CHROME=true
+            --install)
+                INSTALL_EXTENSION=true
                 shift
                 ;;
             --help)
-                echo "Usage: $0 [--load] [--help]"
-                echo "  --load    Open Chrome extensions page for loading the extension"
-                echo "  --help    Show this help message"
+                echo "Usage: $0 [--install] [--help]"
+                echo "  --install    Open Firefox to install the extension after building"
+                echo "  --help       Show this help message"
                 exit 0
                 ;;
             *)
@@ -261,34 +262,34 @@ main() {
     check_requirements
     validate_files
     prepare_resources
-    create_chrome_package
+    create_firefox_package
     
-    # Open Chrome if requested
-    if [ "$OPEN_CHROME" = true ]; then
-        open_chrome_extension
+    # Install if requested
+    if [ "$INSTALL_EXTENSION" = true ]; then
+        install_firefox_extension
     fi
     
     echo "=========================================="
-    echo "Chrome Extension Build Complete!"
+    echo "Firefox Extension Build Complete!"
     echo "=========================================="
     echo ""
-    echo "Your Chrome extension has been packaged successfully."
+    echo "Your Firefox extension has been packaged successfully."
     echo ""
-    echo "📦 Distribution Package: $OUTPUT_DIR/${EXTENSION_NAME}-Chrome-v${VERSION}.zip"
-    echo "🔧 Development Directory: $OUTPUT_DIR/clean-extension/"
+    echo "📦 Package Location: $OUTPUT_DIR/${EXTENSION_NAME}-v${VERSION}.xpi"
     echo ""
-    echo "Installation Options:"
+    echo "To install in Firefox:"
+    echo "1. Open Firefox"
+    echo "2. Go to about:addons"
+    echo "3. Click the gear icon ⚙️"
+    echo "4. Select 'Install Add-on From File...'"
+    echo "5. Choose the .xpi file"
     echo ""
-    echo "🏪 Chrome Web Store (Production):"
-    echo "   Upload the .zip file to Chrome Developer Dashboard"
-    echo ""
-    echo "🔧 Developer Mode (Testing):"
-    echo "   1. Go to chrome://extensions/"
-    echo "   2. Enable 'Developer mode'"
-    echo "   3. Click 'Load unpacked'"
-    echo "   4. Select the clean-extension directory"
-    echo ""
-    echo "🚀 Quick load: $0 --load"
+    echo "For development/testing:"
+    echo "1. Open Firefox"
+    echo "2. Go to about:debugging"
+    echo "3. Click 'This Firefox'"
+    echo "4. Click 'Load Temporary Add-on...'"
+    echo "5. Select the manifest.json from: $OUTPUT_DIR/clean-extension/"
     echo ""
     print_success "Build script completed successfully!"
 }

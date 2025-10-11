@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Generated files
+*.min.js
+*.min.css
+*.d.ts
+*.tsbuildinfo
+
+# Extension builds
+EverTrack-Safari/
+EverTrack-Firefox/
+EverTrack-Chrome/
+
+# Scripts (keep original formatting)
+scripts/
+
+# Manifests (JSON formatting controlled separately)
+manifests/
+
+# Config files that need specific formatting
+.eslintrc.json
+tsconfig.json
+
+# Documentation that shouldn't be reformatted
+CHANGELOG.md
+LICENSE
+
+# OS files
+.DS_Store
+Thumbs.db

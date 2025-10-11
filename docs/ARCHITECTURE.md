@@ -8,36 +8,40 @@ EverTrack is a browser extension that integrates with the Everhour time tracking
 
 ```mermaid
 graph TB
-    subgraph "Browser Extension"
-        BG[Background Script<br/>background.js]
-        PP[Popup Interface<br/>popup.html/js]
-        SP[Settings Page<br/>settings.html/js]
+    subgraph "Browser Extension Layer"
+        BG["Background Script<br/>background.js"]
+        PP["Popup Interface<br/>popup.html/js"]
+        SP["Settings Page<br/>settings.html/js"]
     end
     
-    subgraph "Core Modules"
-        TIME[Time Utils<br/>src/time-utils.js]
-        API[API Utils<br/>src/api-utils.js]
-        DOM[DOM Utils<br/>src/dom-utils.js]
+    subgraph "Core Modules Layer"
+        TIME["Time Utils<br/>src/time-utils.js"]
+        API["API Utils<br/>src/api-utils.js"]
+        DOM["DOM Utils<br/>src/dom-utils.js"]
     end
     
-    subgraph "External APIs"
-        EH[Everhour API<br/>api.everhour.com]
-        CS[Chrome Storage API]
-        NT[Notifications API]
+    subgraph "External APIs Layer"
+        EH["Everhour API<br/>api.everhour.com"]
+        CS["Chrome Storage"]
+        NT["Notifications"]
     end
     
-    BG --> API
+    %% Main connections with clear paths
+    BG -.-> API
     PP --> TIME
     PP --> DOM
-    PP --> API
+    PP -.-> API
     SP --> CS
+    
+    %% External connections
     API --> EH
     BG --> CS
     BG --> NT
     
-    classDef extension fill:#e1f5fe
-    classDef module fill:#f3e5f5
-    classDef external fill:#fff3e0
+    %% Styling
+    classDef extension fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef module fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef external fill:#fff3e0,stroke:#e65100,stroke-width:2px
     
     class BG,PP,SP extension
     class TIME,API,DOM module

@@ -4,15 +4,15 @@ A professional cross-browser extension for Safari, Firefox, and Chrome that prov
 
 ## Features
 
-- 📊 **Smart Progress Tracking**: Pro-rated targets based on your actual work schedule, not calendar time
-- 🕐 **Flexible Work Schedule**: Configure different work hours for each day
-- 🎯 **Multiple Time Periods**: Track daily, weekly, and monthly progress
-- 🟢 **Intelligent Color Coding**: Visual feedback based on progress (green=ahead, orange=behind, red=significantly behind)
-- ⚙️ **Configurable Targets**: Customizable daily, weekly, and monthly hour targets
-- 🔐 **Secure API Integration**: Safe storage of your Everhour API token
-- 📱 **Clean Interface**: Simple popup that doesn't interfere with browsing
-- 🌐 **Cross-Browser Support**: Works on Safari (macOS), Firefox (all OS), and Chrome (all OS)
-- 🛠️ **Professional Development Setup**: TypeScript, ESLint, automated builds
+- **Smart Progress Tracking**: Pro-rated targets based on your actual work schedule, not calendar time
+- **Flexible Work Schedule**: Configure different work hours for each day
+- **Multiple Time Periods**: Track daily, weekly, and monthly progress
+- **Intelligent Color Coding**: Visual feedback based on progress (green=ahead, orange=behind, red=significantly behind)
+- **Configurable Targets**: Customizable daily, weekly, and monthly hour targets
+- **Secure API Integration**: Safe storage of your Everhour API token
+- **Clean Interface**: Simple popup that doesn't interfere with browsing
+- **Cross-Browser Support**: Works on Safari (macOS), Firefox (all OS), and Chrome (all OS)
+- **Professional Development Setup**: TypeScript, ESLint, automated builds
 
 ### Smart Progress Calculation
 
@@ -147,7 +147,7 @@ npm run dev:chrome     # Build and open Chrome for loading
 1. **Enable Safari Development Features**:
    - Safari > Settings > Advanced → Check "Show Develop menu"
    - Safari > Settings > Developer → Check "Allow unsigned extensions"
-   - ⚠️ This setting resets when Safari quits
+   - This setting resets when Safari quits
 
 2. **Build the Extension**:
    ```bash
@@ -193,7 +193,7 @@ make firefox-install
 ```
 
 ### Installation in Firefox
-1. **Production install**: Go to `about:addons` → ⚙️ → "Install Add-on From File" → Select the `.xpi` file
+1. **Production install**: Go to `about:addons` → Settings → "Install Add-on From File" → Select the `.xpi` file
 2. **Development install**: Go to `about:debugging` → "This Firefox" → "Load Temporary Add-on" → Select `manifest.json`
 
 📦 **Extension Package**: Located at `../EverTrack-Firefox/EverTrack-v2.0.1.xpi`
@@ -266,7 +266,7 @@ make release
 2. **View Progress**:
    - Click the EverTrack icon to see progress bars
    - Switch between Daily/Weekly/Monthly views
-   - Color coding: 🟢 Green (ahead), 🟠 Orange (behind), 🔴 Red (significantly behind)
+   - Color coding: Green (ahead), Orange (behind), Red (significantly behind)
 
 3. **Work Schedule Configuration**:
    - Enable/disable days
@@ -347,6 +347,21 @@ Missing icons or bundle errors are automatically resolved by running:
 - **APIs**: Everhour REST API (`/users/me`, `/time`)
 - **Storage**: Safari's secure extension storage
 - **Refresh**: On-demand when popup opens
+
+## Documentation
+
+For detailed technical information and contributor guidance:
+
+- **[Architecture Guide](docs/ARCHITECTURE.md)** - System architecture, data flow, and component relationships
+- **[Contributor Guide](docs/CONTRIBUTOR_GUIDE.md)** - Complete onboarding guide for new contributors with step-by-step setup
+- **[Component Diagrams](docs/COMPONENT_DIAGRAMS.md)** - Visual flowcharts and interaction diagrams
+- **[Changelog](CHANGELOG.md)** - Version history and feature updates
+
+### Quick Links
+- **Understanding the codebase?** → Start with [Architecture Guide](docs/ARCHITECTURE.md)
+- **Want to contribute?** → Follow [Contributor Guide](docs/CONTRIBUTOR_GUIDE.md)
+- **Need visual overview?** → Check [Component Diagrams](docs/COMPONENT_DIAGRAMS.md)
+- **Looking for specific changes?** → Browse [Changelog](CHANGELOG.md)
 
 ## Support
 

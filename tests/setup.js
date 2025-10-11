@@ -1,45 +1,8 @@
 // Jest setup file for browser extension testing
+// This runs AFTER modules are loaded but BEFORE tests
 
-// Polyfills for Node.js environment
-const { TextEncoder, TextDecoder } = require('util');
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
-
-// Mock browser APIs
-global.chrome = {
-  storage: {
-    sync: {
-      get: jest.fn(),
-      set: jest.fn()
-    },
-    local: {
-      get: jest.fn(),
-      set: jest.fn()
-    }
-  },
-  browserAction: {
-    onClicked: {
-      addListener: jest.fn()
-    }
-  },
-  tabs: {
-    query: jest.fn(),
-    sendMessage: jest.fn()
-  }
-};
-
-global.browser = global.chrome;
-
-// Mock console to avoid noise in tests
-global.console = {
-  ...console,
-  log: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn()
-};
-
-// Mock fetch for API tests
-global.fetch = jest.fn();
+// Don't mock console so we can see debug output
+// global.console = console; // Keep original console
 
 // Add custom matchers if needed
 expect.extend({

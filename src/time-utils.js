@@ -20,27 +20,27 @@ if (!window.EverTrackTime) {
     formatHours(hours, showMinutes = false) {
       if (hours === 0) {return '0h';}
 
-      // Round to nearest 0.1 hour for cleaner display
-      const roundedHours = Math.round(hours * 10) / 10;
-
       if (showMinutes) {
-        const wholeHours = Math.floor(Math.abs(roundedHours));
-        const minutes = Math.round((Math.abs(roundedHours) - wholeHours) * 60);
+        // Convert to total minutes first, then round for accuracy
+        const totalMinutes = Math.round(Math.abs(hours) * 60);
+        const wholeHours = Math.floor(totalMinutes / 60);
+        const remainingMinutes = totalMinutes % 60;
 
         let result = '';
-        if (roundedHours < 0) {result += '-';}
+        if (hours < 0) {result += '-';}
 
         if (wholeHours > 0) {
           result += `${wholeHours}h`;
         }
 
-        if (minutes > 0) {
-          result += ` ${minutes}m`;
+        if (remainingMinutes > 0) {
+          result += `${wholeHours > 0 ? ' ' : ''}${remainingMinutes}m`;
         }
 
         return result || '0h';
       } else {
-        // Show as decimal hours (e.g., "7.5h")
+        // Round to nearest 0.1 hour for cleaner display
+        const roundedHours = Math.round(hours * 10) / 10;
         const prefix = roundedHours < 0 ? '-' : '';
         return `${prefix}${Math.abs(roundedHours)}h`;
       }

@@ -10,7 +10,8 @@ module.exports = {
     '!src/background*.js', // Skip background scripts that require browser APIs
     '!src/content.js'      // Skip content script that requires DOM injection
   ],
-  setupFilesAfterEnv: [], // ['<rootDir>/tests/setup.js'], // Temporarily disabled
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+  setupFiles: ['<rootDir>/tests/globals.js'], // Load globals before modules
   globals: {
     chrome: {},
     browser: {},
